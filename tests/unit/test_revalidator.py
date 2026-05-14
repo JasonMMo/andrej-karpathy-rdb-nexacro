@@ -33,3 +33,19 @@ def test_n006_xml_wellformed_fail(tmp_path):
     f.write_text("<root><a></root>")
     with pytest.raises(RevalidationError, match="N006"):
         check_xml_wellformed([f])
+
+
+def test_n005_passes_on_not_null_only():
+    e = {"name": "t", "columns": [{"name": "code", "type": "varchar(10)", "nullable": False}]}
+    check_search_candidates([e])
+
+
+def test_n005_passes_on_pk_only():
+    e = {"name": "t", "columns": [{"name": "id", "type": "varchar(36)", "pk": True, "nullable": True}]}
+    check_search_candidates([e])
+
+
+def test_n006_missing_file_raises_revalidation_error(tmp_path):
+    missing = tmp_path / "does_not_exist.xfdl"
+    with pytest.raises(RevalidationError, match="N006"):
+        check_xml_wellformed([missing])
