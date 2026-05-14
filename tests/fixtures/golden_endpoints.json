@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "context_path": "/uiadapter",
+  "entities": [
+    {
+      "name": "customer",
+      "endpoint_base": "/customer",
+      "endpoints": [
+        {"method": "select_datalist_map", "http_path": "/customer/select_datalist_map.do",
+         "input": {"dsSearch": "param-dataset"}, "output": {"output1": "list-dataset"}},
+        {"method": "save_datalist_map", "http_path": "/customer/save_datalist_map.do",
+         "input": {"dataList": "row-dispatch"}, "output": {}}
+      ]
+    }
+  ]
+}
