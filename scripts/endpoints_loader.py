@@ -12,7 +12,14 @@ def load_endpoints(path):
     p = pathlib.Path(path)
     if not p.exists():
         raise EndpointsError(f"N002 endpoints.json not found: {p}")
-    data = json.loads(p.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise EndpointsError(f"N002 endpoints.json is not valid JSON: {exc}") from exc
+    if not isinstance(data, dict):
+        raise EndpointsError(
+            f"N002 endpoints.json must be a JSON object, got {type(data).__name__}"
+        )
     if data.get("version") != 1:
         raise EndpointsError(f"N002 unsupported version: {data.get('version')!r}")
     for e in data.get("entities") or []:
