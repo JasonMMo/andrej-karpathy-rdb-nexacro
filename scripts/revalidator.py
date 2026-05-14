@@ -23,7 +23,7 @@ def check_xml_wellformed(paths):
         p = pathlib.Path(p)
         try:
             ET.parse(p)
-        except ET.ParseError as e:
+        except (ET.ParseError, OSError) as e:
             bad.append(f"{p}: {e}")
     if bad:
         raise RevalidationError(
