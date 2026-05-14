@@ -72,3 +72,14 @@ def test_unknown_falls_back():
     assert r.size == 100
     assert r.grid_edittype == "text"
     assert r.fallback is True
+
+
+def test_char1_yn_pk_is_readonly():
+    r = map_column({"name": "active_yn", "type": "char(1)", "pk": True, "nullable": False})
+    assert r.grid_edittype == "none"
+
+
+def test_missing_name_raises_typemappererror():
+    from type_mapper import TypeMapperError
+    with pytest.raises(TypeMapperError, match="missing 'name'"):
+        map_column({"type": "varchar(10)"})
