@@ -1,0 +1,16 @@
+version: 1
+project: 고객관리
+validation:
+  passed: true
+  errors: []
+entities:
+  - name: customer
+    table: TB_CUSTOMER
+    columns:
+      - { name: customer_id, type: varchar(36),  pk: true,  nullable: false }
+      - { name: name,        type: varchar(100), nullable: false }
+      - { name: email,       type: varchar(200), nullable: true }
+      - { name: active_yn,   type: char(1),      nullable: false }
+      - { name: created_at,  type: timestamp,    nullable: false }
+relations: []
+business_rules: []
