@@ -48,3 +48,17 @@ def test_n003_cross_check_entities_match():
     cross_check([{"name": "customer"}], ep)  # OK
     with pytest.raises(EndpointsError, match="N003"):
         cross_check([{"name": "customer"}, {"name": "order"}], ep)
+
+
+def test_n002_rejects_non_dict_top_level(tmp_path):
+    p = tmp_path / "ep.json"
+    p.write_text("[]")
+    with pytest.raises(EndpointsError, match="N002"):
+        load_endpoints(p)
+
+
+def test_n002_rejects_malformed_json(tmp_path):
+    p = tmp_path / "ep.json"
+    p.write_text("{not valid json")
+    with pytest.raises(EndpointsError, match="N002"):
+        load_endpoints(p)
