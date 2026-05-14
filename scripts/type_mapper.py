@@ -3,6 +3,10 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 
+class TypeMapperError(Exception):
+    pass
+
+
 @dataclass
 class MapResult:
     dataset_type: str
@@ -20,6 +24,8 @@ _NUMERIC_RE  = re.compile(r"^(numeric|decimal)\((\d+)(?:,\d+)?\)$", re.I)
 
 
 def map_column(col):
+    if "name" not in col:
+        raise TypeMapperError(f"column dict missing 'name': {col!r}")
     name = col["name"]
     t = (col.get("type") or "").strip().lower()
     pk = bool(col.get("pk"))
@@ -47,7 +53,7 @@ def map_column(col):
     m = _CHAR_RE.match(t)
     if m:
         size = int(m.group(1))
-        if size == 1 and name.lower().endswith("_yn"):
+        if size == 1 and name.lower().endswith("_yn") and not pk:
             return MapResult(
                 dataset_type="STRING", size=1,
                 search_component="Combo",
@@ -56,7 +62,9 @@ def map_column(col):
             )
         return MapResult(
             dataset_type="STRING", size=size,
-            search_component="Edit", grid_edittype="text", grid_displaytype="text",
+            search_component="Edit",
+            grid_edittype="none" if pk else "text",
+            grid_displaytype="text",
         )
 
     m = _NUMERIC_RE.match(t)
