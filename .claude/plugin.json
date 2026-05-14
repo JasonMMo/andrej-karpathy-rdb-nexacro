@@ -1,0 +1,12 @@
+{
+  "name": "andrej-karpathy-rdb-nexacro",
+  "version": "0.1.0",
+  "description": "Stage 4 — Blueprint + endpoints.json → nexacro xfdl form codegen",
+  "author": "business-fullstack-creater",
+  "keywords": ["claude-code", "plugin", "nexacro", "xfdl", "codegen", "karpathy"],
+  "claudeCode": { "minVersion": "2.0.0" },
+  "entries": {
+    "commands": ".claude/commands/",
+    "skills": ".claude/skills/"
+  }
+}
