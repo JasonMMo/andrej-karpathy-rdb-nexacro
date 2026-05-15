@@ -4,3 +4,5 @@ __pycache__/
 .smoke/
 out/
 *.bak
+tests/_review_out/
+tests/_review_out2/
