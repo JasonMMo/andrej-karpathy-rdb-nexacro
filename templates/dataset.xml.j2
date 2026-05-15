@@ -1,0 +1,19 @@
+{# Renders a single <Dataset> with column metadata #}
+<Dataset id="{{ ds_id }}">
+  <ColumnInfo>
+{%- for col in columns %}
+    <Column id="{{ col.name }}" type="{{ col.dataset_type }}"{% if col.size %} size="{{ col.size }}"{% endif %}/>
+{%- endfor %}
+  </ColumnInfo>
+{%- if rows %}
+  <Rows>
+{%- for row in rows %}
+    <Row>
+{%- for k, v in row.items() %}
+      <Col id="{{ k }}">{{ v }}</Col>
+{%- endfor %}
+    </Row>
+{%- endfor %}
+  </Rows>
+{%- endif %}
+</Dataset>
