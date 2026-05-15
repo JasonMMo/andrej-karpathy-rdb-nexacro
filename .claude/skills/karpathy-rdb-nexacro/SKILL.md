@@ -5,11 +5,26 @@ description: Generates entity-per-form nexacro xfdl from blueprint + endpoints.j
 
 # karpathy-rdb-nexacro
 
-Stage 4 of the business-fullstack-creater pipeline. Consumes:
-- Stage 1 `_blueprint.yaml`
-- Stage 3 `endpoints.json` (v0.1.4+)
+Stage 4 of the business-fullstack-creater pipeline.
 
-Emits xfdl forms + dsMenu seed + typedefinition patch ready to overlay on
-`nexacro-fullstack-starter` scaffold.
+## Inputs
+- `_blueprint.yaml` — see `references/blueprint-input-contract.md`
+- `endpoints.json` — see `references/endpoints-input-contract.md`
 
-See `references/` for input contracts, type matrix, and output layout.
+## Outputs
+See `references/output-layout.md`.
+
+## Form layout
+2-tier — Search panel (top) + editable Grid (middle) + action buttons.
+See `references/form-layout.md`.
+
+## Type mapping
+See `references/type-mapping-matrix.md`.
+
+## Overlay
+See `references/overlay-policy.md`.
+
+## Run
+```
+python scripts/form_gen.py compile --blueprint <bp> --endpoints <ep> --out <dir>
+```
