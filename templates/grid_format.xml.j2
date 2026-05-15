@@ -1,0 +1,21 @@
+<Format id="default">
+  <Columns>
+{%- for col in columns %}
+    <Column size="{{ col.size or 120 }}"/>
+{%- endfor %}
+  </Columns>
+  <Rows>
+    <Row size="24" band="head"/>
+    <Row size="24"/>
+  </Rows>
+  <Band id="head">
+{%- for col in columns %}
+    <Cell col="{{ loop.index0 }}" text="{{ col.label }}"/>
+{%- endfor %}
+  </Band>
+  <Band id="body">
+{%- for col in columns %}
+    <Cell col="{{ loop.index0 }}" text="bind:{{ col.name }}" edittype="{{ col.grid_edittype }}" displaytype="{{ col.grid_displaytype }}"/>
+{%- endfor %}
+  </Band>
+</Format>
