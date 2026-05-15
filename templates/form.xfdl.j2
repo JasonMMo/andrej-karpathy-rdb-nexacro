@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+<Form id="{{ form_id }}" width="900" height="620" titletext="{{ title }}">
+  <Layout>
+    <!-- Search panel (top, 60px) -->
+    <Static id="ttl_search" left="10" top="6" width="120" height="20" text="검색조건" cssclass="sta_WF_Title"/>
+    {{ search_fields | indent(4) }}
+    <Button id="btn_search" left="780" top="20" width="80" height="24" text="조회" onclick="fn_search"/>
+
+    <!-- Grid (middle, 520px) -->
+    <Grid id="grd_main" left="10" top="70" width="880" height="500"
+          binddataset="ds{{ entity_pascal }}" autofittype="col" useinputpanel="false">
+{{ grid_format | indent(6) }}
+    </Grid>
+
+    <!-- Action buttons (bottom) -->
+    <Button id="btn_add"  left="620" top="580" width="80" height="28" text="추가"   onclick="fn_add"/>
+    <Button id="btn_del"  left="710" top="580" width="80" height="28" text="삭제"   onclick="fn_delete"/>
+    <Button id="btn_save" left="800" top="580" width="80" height="28" text="저장"   onclick="fn_save"/>
+  </Layout>
+
+  <Objects>
+{{ datasets | indent(4) }}
+  </Objects>
+
+  <Script type="xscript5.1"><![CDATA[
+this.fn_search = function() {
+  this.transaction("select",
+    "Svc{{ entity_pascal }}::{{ select_path }}",
+    "dsSearch=dsSearch",
+    "output1=ds{{ entity_pascal }}",
+    "", "fn_callback");
+};
+
+this.fn_add = function() {
+  var n = this.ds{{ entity_pascal }}.addRow();
+  this.grd_main.setCellPos(0);
+};
+
+this.fn_delete = function() {
+  var r = this.ds{{ entity_pascal }}.rowposition;
+  if (r < 0) return;
+  this.ds{{ entity_pascal }}.deleteRow(r);
+};
+
+this.fn_save = function() {
+  if (this.ds{{ entity_pascal }}.getRowCountNF() === 0) {
+    alert("저장할 행이 없습니다.");
+    return;
+  }
+  this.transaction("save",
+    "Svc{{ entity_pascal }}::{{ save_path }}",
+    "",
+    "",
+    "dataList=ds{{ entity_pascal }}:U",
+    "fn_callback");
+};
+
+this.fn_callback = function(svcId, errCd, errMsg) {
+  if (errCd < 0) { alert(errMsg); return; }
+  if (svcId === "save") this.fn_search();
+};
+  ]]></Script>
+</Form>
+</FDL>
