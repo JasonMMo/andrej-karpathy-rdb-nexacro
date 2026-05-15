@@ -1,0 +1,21 @@
+{# templates/menu_dataset.xml.j2 #}
+<Dataset id="dsMenu">
+  <ColumnInfo>
+    <Column id="menu_id"  type="STRING" size="40"/>
+    <Column id="menu_pid" type="STRING" size="40"/>
+    <Column id="menu_nm"  type="STRING" size="100"/>
+    <Column id="form_url" type="STRING" size="200"/>
+    <Column id="level"    type="INT"    size="2"/>
+  </ColumnInfo>
+  <Rows>
+{%- for row in rows %}
+    <Row>
+      <Col id="menu_id">{{ row.menu_id }}</Col>
+      <Col id="menu_pid">{{ row.menu_pid }}</Col>
+      <Col id="menu_nm">{{ row.menu_nm }}</Col>
+      <Col id="form_url">{{ row.form_url }}</Col>
+      <Col id="level">{{ row.level }}</Col>
+    </Row>
+{%- endfor %}
+  </Rows>
+</Dataset>
