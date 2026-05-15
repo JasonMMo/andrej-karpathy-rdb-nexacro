@@ -1,0 +1,11 @@
+{# Renders one search field row #}
+{%- if comp == "Calendar" %}
+<Static id="stt_{{ col_name }}" text="{{ label }}" left="{{ x }}" top="{{ y }}" width="80" height="24"/>
+<Calendar id="cal_{{ col_name }}" left="{{ x + 84 }}" top="{{ y }}" width="120" height="24"/>
+{%- elif comp == "Combo" %}
+<Static id="stt_{{ col_name }}" text="{{ label }}" left="{{ x }}" top="{{ y }}" width="80" height="24"/>
+<Combo id="cmb_{{ col_name }}" left="{{ x + 84 }}" top="{{ y }}" width="120" height="24" innerdataset="ds_{{ col_name }}_codes" codecolumn="code" datacolumn="name"/>
+{%- else %}
+<Static id="stt_{{ col_name }}" text="{{ label }}" left="{{ x }}" top="{{ y }}" width="80" height="24"/>
+<Edit id="edt_{{ col_name }}" left="{{ x + 84 }}" top="{{ y }}" width="160" height="24"/>
+{%- endif %}
