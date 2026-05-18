@@ -1,0 +1,4 @@
+name: D2
+kind: detail-2-tier
+description: "Search 패널 + Grid + Action 버튼 (multi-row CRUD 기본)"
+required_endpoints: [select_datalist_map, save_datalist_map]
