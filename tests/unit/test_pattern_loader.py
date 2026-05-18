@@ -1,12 +1,9 @@
 import pathlib
 import pytest
-import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / "scripts"
-sys.path.insert(0, str(SCRIPTS))
 
-from pattern_loader import resolve_pattern, PatternNotFoundError  # noqa: E402
+from pattern_loader import resolve_pattern, PatternNotFoundError
 
 BUNDLED = REPO_ROOT / ".claude" / "skills" / "karpathy-rdb-nexacro" / "patterns"
 
