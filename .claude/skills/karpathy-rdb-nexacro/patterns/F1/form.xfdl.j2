@@ -18,7 +18,7 @@ this.fn_save = function() {
     this.ds{{ entity_pascal }}.addRow();
   }
   this.transaction("save",
-    "Svc{{ entity_pascal }}::{{ save_path }}",
+    "Svc{{ service_pascal }}::{{ save_path }}",
     "",
     "",
     "dataList=ds{{ entity_pascal }}:U",
