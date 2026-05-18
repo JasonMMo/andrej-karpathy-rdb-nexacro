@@ -30,6 +30,9 @@ def _parse_args(argv):
     c.add_argument("--force", action="store_true")
     c.add_argument("--default-pattern", default="D2",
                    help="Default form pattern when entity has no 'pattern:' field")
+    c.add_argument("--service-name", default=None,
+                   help="PascalCase service name (e.g. 'Order'). Overrides blueprint's service_pascal. "
+                        "Falls back to blueprint.service_pascal, then 'Default'.")
     return p.parse_args(argv)
 
 
@@ -69,9 +72,7 @@ def main(argv=None):
         print(f"[{e}]", file=sys.stderr)
         return 1
 
-    # Derive service_pascal: blueprint may supply it explicitly (E2 will add CLI flag).
-    # For E1, fall back to "Default" when not specified.
-    service_pascal = bp.get("service_pascal", "Default")
+    service_pascal = args.service_name or bp.get("service_pascal") or "Default"
     service_slug = _pascal_to_snake(service_pascal)
 
     ep_by_name = {x["name"]: x for x in ep["entities"]}
