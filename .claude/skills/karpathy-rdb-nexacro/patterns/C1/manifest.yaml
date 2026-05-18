@@ -1,0 +1,4 @@
+name: C1
+kind: card-1-tier
+description: "검색 + 읽기용 카드/그리드 목록 (단순 선택 위주, 저장 없음)"
+required_endpoints: [select_datalist_map]
