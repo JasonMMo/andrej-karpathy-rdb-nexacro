@@ -1,15 +1,20 @@
 import argparse
 import pathlib
+import re
 import sys
 
 GLOBAL_PATTERN_ROOT = pathlib.Path.home() / ".karpathy-rdb" / "catalog" / "patterns"
+
+
+def _pascal_to_snake(s: str) -> str:
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", s).lower()
 
 from blueprint_loader  import load_blueprint, BlueprintError
 from endpoints_loader  import load_endpoints, infer_endpoints, cross_check, EndpointsError
 from revalidator       import check_search_candidates, check_xml_wellformed, RevalidationError
 from form_composer     import compose_form
 from menu_dataset_gen  import build_menu_rows, render_menu_dataset
-from typedef_patcher   import build_service_entries, render_patch  # build_service_entries kept for back-compat
+from typedef_patcher   import render_patch
 
 
 def _parse_args(argv):
@@ -67,7 +72,7 @@ def main(argv=None):
     # Derive service_pascal: blueprint may supply it explicitly (E2 will add CLI flag).
     # For E1, fall back to "Default" when not specified.
     service_pascal = bp.get("service_pascal", "Default")
-    service_slug = service_pascal.lower()
+    service_slug = _pascal_to_snake(service_pascal)
 
     ep_by_name = {x["name"]: x for x in ep["entities"]}
     written = []
