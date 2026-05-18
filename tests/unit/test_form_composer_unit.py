@@ -46,3 +46,10 @@ def test_compose_form_F1_no_grid(sample_entity, sample_endpoints):
     assert "<Grid" not in out
     assert "btn_save" in out
     assert "fn_save" in out
+
+
+def test_compose_form_C1_readonly_grid(sample_entity, sample_endpoints):
+    out = compose_form(sample_entity, sample_endpoints, pattern="C1")
+    assert "btn_search" in out
+    assert "btn_save" not in out      # C1 = 읽기 위주
+    assert "btn_select" in out         # 단순 선택 버튼
