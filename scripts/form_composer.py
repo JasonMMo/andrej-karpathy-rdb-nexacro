@@ -1,8 +1,12 @@
 import pathlib
 from jinja2 import Environment, FileSystemLoader
 from type_mapper import map_column
+from pattern_loader import resolve_pattern
 
-TEMPLATES = pathlib.Path(__file__).resolve().parents[1] / "templates"
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
+TEMPLATES = REPO_ROOT / "templates"
+BUNDLED_PATTERNS = REPO_ROOT / ".claude" / "skills" / "karpathy-rdb-nexacro" / "patterns"
+
 ENV = Environment(
     loader=FileSystemLoader(TEMPLATES),
     trim_blocks=True, lstrip_blocks=True,
@@ -23,7 +27,7 @@ def _label(col_name):
     return col_name.replace("_", " ").title()
 
 
-def compose_form(entity, endpoints):
+def compose_form(entity, endpoints, pattern: str = "D2", global_pattern_root=None):
     pascal = _pascal(entity["name"])
     cols = []
     for c in entity["columns"]:
@@ -83,8 +87,14 @@ def compose_form(entity, endpoints):
     sav_path = next(e["http_path"] for e in endpoints["endpoints"]
                     if e["method"] == "save_datalist_map")
 
-    # Main form
-    form_tpl = ENV.get_template("form.xfdl.j2")
+    # Main form — route through pattern resolver
+    resolved = resolve_pattern(pattern, BUNDLED_PATTERNS, global_pattern_root)
+    pattern_env = Environment(
+        loader=FileSystemLoader(str(resolved.template_path.parent)),
+        trim_blocks=True, lstrip_blocks=True,
+        keep_trailing_newline=False,
+    )
+    form_tpl = pattern_env.get_template(resolved.template_path.name)
     return form_tpl.render(
         form_id=entity["name"],
         title=f"{pascal} 관리",
