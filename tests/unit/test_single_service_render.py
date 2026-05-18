@@ -35,8 +35,10 @@ def test_single_service_type_and_version():
     assert svc.get("version") == "1.0"
 
 
-def test_no_multiple_services():
-    """Confirm the template never emits more than one Service regardless of slug."""
-    xml = render_patch(service_pascal="Inventory", service_slug="inventory")
+def test_compound_service_name_slugified():
+    """Compound PascalCase name maps to snake_case slug in both id and url."""
+    xml = render_patch(service_pascal="SalesOrder", service_slug="sales_order")
     root = ET.fromstring(xml)
-    assert len(root.findall("Service")) == 1
+    svc = root.find("Service")
+    assert svc.get("id") == "SvcSalesOrder"
+    assert svc.get("url") == "/uiadapter/sales_order"
