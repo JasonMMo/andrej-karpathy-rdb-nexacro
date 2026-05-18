@@ -21,7 +21,7 @@
   <Script type="xscript5.1"><![CDATA[
 this.fn_search = function() {
   this.transaction("select",
-    "Svc{{ entity_pascal }}::{{ select_path }}",
+    "Svc{{ service_pascal }}::{{ select_path }}",
     "dsSearch=dsSearch",
     "output1=ds{{ entity_pascal }}",
     "", "fn_callback");
