@@ -9,7 +9,7 @@ from endpoints_loader  import load_endpoints, infer_endpoints, cross_check, Endp
 from revalidator       import check_search_candidates, check_xml_wellformed, RevalidationError
 from form_composer     import compose_form
 from menu_dataset_gen  import build_menu_rows, render_menu_dataset
-from typedef_patcher   import build_service_entries, render_patch
+from typedef_patcher   import build_service_entries, render_patch  # build_service_entries kept for back-compat
 
 
 def _parse_args(argv):
@@ -64,6 +64,11 @@ def main(argv=None):
         print(f"[{e}]", file=sys.stderr)
         return 1
 
+    # Derive service_pascal: blueprint may supply it explicitly (E2 will add CLI flag).
+    # For E1, fall back to "Default" when not specified.
+    service_pascal = bp.get("service_pascal", "Default")
+    service_slug = service_pascal.lower()
+
     ep_by_name = {x["name"]: x for x in ep["entities"]}
     written = []
     for entity in bp["entities"]:
@@ -80,6 +85,7 @@ def main(argv=None):
             ep_by_name[entity["name"]],
             pattern=pattern,
             global_pattern_root=global_root,
+            service_pascal=service_pascal,
         )
         target.write_text(xfdl, encoding="utf-8")
         written.append(target)
@@ -89,7 +95,8 @@ def main(argv=None):
     menu_path.write_text(menu_xml, encoding="utf-8")
 
     patch_xml = render_patch(
-        build_service_entries(ep["entities"]),
+        service_pascal=service_pascal,
+        service_slug=service_slug,
         context_path=ep.get("context_path", "/uiadapter"),
     )
     patch_path = patch_dir / "typedefinition.patch.xml"
