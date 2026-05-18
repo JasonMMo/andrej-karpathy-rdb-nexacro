@@ -26,7 +26,7 @@
   <Script type="xscript5.1"><![CDATA[
 this.fn_search = function() {
   this.transaction("select",
-    "Svc{{ entity_pascal }}::{{ select_path }}",
+    "Svc{{ service_pascal }}::{{ select_path }}",
     "dsSearch=dsSearch",
     "output1=ds{{ entity_pascal }}",
     "", "fn_callback");
@@ -49,7 +49,7 @@ this.fn_save = function() {
     return;
   }
   this.transaction("save",
-    "Svc{{ entity_pascal }}::{{ save_path }}",
+    "Svc{{ service_pascal }}::{{ save_path }}",
     "",
     "",
     "dataList=ds{{ entity_pascal }}:U",
