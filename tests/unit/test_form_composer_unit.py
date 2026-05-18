@@ -39,3 +39,10 @@ def test_compose_form_explicit_D2(sample_entity, sample_endpoints):
 def test_compose_form_unknown_pattern_raises(sample_entity, sample_endpoints):
     with pytest.raises(PatternNotFoundError):
         compose_form(sample_entity, sample_endpoints, pattern="ZZZ")
+
+
+def test_compose_form_F1_no_grid(sample_entity, sample_endpoints):
+    out = compose_form(sample_entity, sample_endpoints, pattern="F1")
+    assert "<Grid" not in out
+    assert "btn_save" in out
+    assert "fn_save" in out
