@@ -2,6 +2,8 @@ import argparse
 import pathlib
 import sys
 
+GLOBAL_PATTERN_ROOT = pathlib.Path.home() / ".karpathy-rdb" / "catalog" / "patterns"
+
 from blueprint_loader  import load_blueprint, BlueprintError
 from endpoints_loader  import load_endpoints, infer_endpoints, cross_check, EndpointsError
 from revalidator       import check_search_candidates, check_xml_wellformed, RevalidationError
@@ -21,6 +23,8 @@ def _parse_args(argv):
     c.add_argument("--frame", default="packageN", choices=["packageN", "minimal"])
     c.add_argument("--strict", action="store_true")
     c.add_argument("--force", action="store_true")
+    c.add_argument("--default-pattern", default="D2",
+                   help="Default form pattern when entity has no 'pattern:' field")
     return p.parse_args(argv)
 
 
@@ -69,7 +73,14 @@ def main(argv=None):
             return 1
         if target.exists() and args.force:
             target.replace(target.with_suffix(target.suffix + ".bak"))
-        xfdl = compose_form(entity, ep_by_name[entity["name"]])
+        pattern = entity.get("pattern") or args.default_pattern
+        global_root = GLOBAL_PATTERN_ROOT if GLOBAL_PATTERN_ROOT.exists() else None
+        xfdl = compose_form(
+            entity,
+            ep_by_name[entity["name"]],
+            pattern=pattern,
+            global_pattern_root=global_root,
+        )
         target.write_text(xfdl, encoding="utf-8")
         written.append(target)
 
