@@ -1,0 +1,4 @@
+name: F1
+kind: form-1-tier
+description: "단일 record 편집 폼 (grid 없음, 1:1 entity / 디테일 측)"
+required_endpoints: [select_datalist_map, save_datalist_map]
