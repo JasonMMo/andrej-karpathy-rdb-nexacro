@@ -27,7 +27,8 @@ def _label(col_name):
     return col_name.replace("_", " ").title()
 
 
-def compose_form(entity, endpoints, pattern: str = "D2", global_pattern_root=None):
+def compose_form(entity, endpoints, pattern: str = "D2", global_pattern_root=None,
+                 service_pascal: str = "Default"):
     pascal = _pascal(entity["name"])
     cols = []
     for c in entity["columns"]:
@@ -99,6 +100,7 @@ def compose_form(entity, endpoints, pattern: str = "D2", global_pattern_root=Non
         form_id=entity["name"],
         title=f"{pascal} 관리",
         entity_pascal=pascal,
+        service_pascal=service_pascal,
         search_fields=search_fields,
         grid_format=grid_format,
         datasets=datasets_xml,
