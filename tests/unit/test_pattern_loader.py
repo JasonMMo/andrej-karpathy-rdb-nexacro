@@ -1,0 +1,36 @@
+import pathlib
+import pytest
+import sys
+
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
+SCRIPTS = REPO_ROOT / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+
+from pattern_loader import resolve_pattern, PatternNotFoundError  # noqa: E402
+
+BUNDLED = REPO_ROOT / ".claude" / "skills" / "karpathy-rdb-nexacro" / "patterns"
+
+
+def test_resolve_bundled_D2():
+    p = resolve_pattern("D2", bundled_root=BUNDLED, global_root=None)
+    assert p.name == "D2"
+    assert p.template_path.name == "form.xfdl.j2"
+    assert p.template_path.exists()
+    assert p.manifest["name"] == "D2"
+    assert p.source == "bundled"
+
+
+def test_unknown_pattern_raises(tmp_path):
+    with pytest.raises(PatternNotFoundError) as exc:
+        resolve_pattern("ZZ", bundled_root=BUNDLED, global_root=tmp_path)
+    assert "ZZ" in str(exc.value)
+
+
+def test_global_fallback(tmp_path):
+    pat_dir = tmp_path / "X9"
+    pat_dir.mkdir()
+    (pat_dir / "manifest.yaml").write_text("name: X9\nkind: detail\n", encoding="utf-8")
+    (pat_dir / "form.xfdl.j2").write_text("<dummy/>", encoding="utf-8")
+    p = resolve_pattern("X9", bundled_root=BUNDLED, global_root=tmp_path)
+    assert p.template_path.read_text(encoding="utf-8") == "<dummy/>"
+    assert p.source == "global"
