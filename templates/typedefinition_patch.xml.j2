@@ -1,6 +1,4 @@
 {# templates/typedefinition_patch.xml.j2 #}
 <Services>
-{%- for ent in entities %}
-  <Service id="Svc{{ ent.pascal }}" url="{{ context_path }}{{ ent.endpoint_base }}" type="default" version="1.0"/>
-{%- endfor %}
+  <Service id="Svc{{ service_pascal }}" url="{{ context_path }}/{{ service_slug }}" type="default" version="1.0"/>
 </Services>
