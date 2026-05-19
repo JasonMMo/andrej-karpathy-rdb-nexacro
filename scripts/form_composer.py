@@ -46,7 +46,8 @@ def _entity_cols(entity):
 
 def compose_form(entity, endpoints, pattern: str = "D2", global_pattern_root=None,
                  service_pascal: str = "Default",
-                 child_entity=None, child_endpoints=None, child_fk_column=None):
+                 child_entity=None, child_endpoints=None, child_fk_column=None,
+                 self_parent_column=None):
     pascal = _pascal(entity["name"])
     cols = _entity_cols(entity)
 
@@ -106,7 +107,11 @@ def compose_form(entity, endpoints, pattern: str = "D2", global_pattern_root=Non
         save_path=sav_path,
     )
 
-    # Optional child wiring (used by MD pattern; ignored by D2/F1/C1/L2)
+    # Optional self-FK column (used by TR pattern; ignored by other patterns)
+    if self_parent_column is not None:
+        ctx["self_parent_column"] = self_parent_column
+
+    # Optional child wiring (used by MD pattern; ignored by D2/F1/C1/L2/TR)
     if child_entity is not None:
         child_pascal = _pascal(child_entity["name"])
         child_cols = _entity_cols(child_entity)
