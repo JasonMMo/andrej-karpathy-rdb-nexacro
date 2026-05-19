@@ -47,7 +47,7 @@ patterns/<name>/
 | **F1** | form-1-tier | 단일 record 편집. grid 없음. 1:1 entity / 디테일 측. |
 | **C1** | card-1-tier | 검색 + 읽기 전용 grid + 선택 버튼. picker / popup. |
 | **L2** | list-detail-2-tier | 좌측 list grid + 우측 detail 편집 패널. 게시판/공지/명단 등 list-heavy 도메인 표준. |
-| **MD** | master-detail-2-tier | 상단 master + 하단 child line-items. 주문서/발주서/송장 등 transactional document. (자식 dataset 보강 필요) |
+| **MD** | master-detail-2-tier | 상단 master + 하단 child line-items. 주문서/발주서/송장 등 transactional document. blueprint `relations` 의 첫 번째 1:N 자식이 자동 wiring (Growth-5). 없을 시 placeholder graceful degrade. |
 
 ## 새 패턴 추가
 1. `patterns/<name>/` 디렉터리 생성 (manifest.yaml + form.xfdl.j2 + README.md)
