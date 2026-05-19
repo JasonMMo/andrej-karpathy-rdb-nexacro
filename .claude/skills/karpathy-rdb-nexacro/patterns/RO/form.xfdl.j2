@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+<Form id="{{ form_id }}" width="900" height="600" titletext="{{ title }}">
+  <Layout>
+    <Static id="ttl_search" left="10" top="6" width="120" height="20" text="검색조건" cssclass="sta_WF_Title"/>
+    {{ search_fields | indent(4) }}
+    <Button id="btn_search" left="700" top="20" width="80" height="24" text="조회" onclick="fn_search"/>
+    <Button id="btn_refresh" left="785" top="20" width="80" height="24" text="새로고침" onclick="fn_refresh"/>
+
+    <Grid id="grd_main" left="10" top="70" width="880" height="480"
+          binddataset="ds{{ entity_pascal }}" autofittype="col" readonly="true">
+{{ grid_format | indent(6) }}
+    </Grid>
+
+    <Static id="lbl_hint" left="10" top="560" width="600" height="24"
+            text="※ 본 화면은 audit/history 조회 전용입니다. 행 추가/수정/삭제는 원천 거래에서 수행하세요."
+            cssclass="sta_WF_Subtitle"/>
+    <Button id="btn_export" left="800" top="560" width="80" height="28" text="내보내기" onclick="fn_export"/>
+  </Layout>
+
+  <Objects>
+{{ datasets | indent(4) }}
+  </Objects>
+
+  <Script type="xscript5.1"><![CDATA[
+this.fn_search = function() {
+  this.transaction("select",
+    "Svc{{ service_pascal }}::{{ select_path }}",
+    "dsSearch=dsSearch",
+    "output1=ds{{ entity_pascal }}",
+    "", "fn_callback");
+};
+
+this.fn_refresh = function() {
+  this.fn_search();
+};
+
+this.fn_export = function() {
+  // 실 구현은 lane 별 csv/excel exporter 어댑터에 위임 (overlay 단계에서 주입)
+  if (typeof this.parent.fn_export_dataset == "function") {
+    this.parent.fn_export_dataset(this.ds{{ entity_pascal }}, "{{ form_id }}");
+  } else {
+    alert("내보내기 어댑터가 설정되지 않았습니다.");
+  }
+};
+
+this.fn_callback = function(svcId, errCd, errMsg) {
+  if (errCd < 0) alert(errMsg);
+};
+  ]]></Script>
+</Form>
+</FDL>
