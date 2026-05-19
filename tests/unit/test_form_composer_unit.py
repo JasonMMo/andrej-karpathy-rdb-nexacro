@@ -86,6 +86,27 @@ def test_compose_form_MD_without_child_keeps_placeholder(sample_entity, sample_e
     assert "grd_child" not in out       # no child grid wired
 
 
+def test_compose_form_TR_with_self_parent_column(sample_entity, sample_endpoints):
+    """Growth-6: TR pattern emits tree grid + root/child add buttons using self_parent_column."""
+    out = compose_form(
+        sample_entity, sample_endpoints, pattern="TR",
+        self_parent_column="parent_dept_id",
+    )
+    assert 'treeuseyn="true"' in out
+    assert "grd_tree" in out
+    assert "btn_add_root" in out and "btn_add_child" in out
+    assert "fn_add_root" in out and "fn_add_child" in out
+    assert "parent_dept_id" in out          # injected FK column visible in setColumn
+    assert "<Grid" in out
+
+
+def test_compose_form_TR_default_parent_column_fallback(sample_entity, sample_endpoints):
+    """Growth-6: TR without self_parent_column falls back to convention 'parent_id'."""
+    out = compose_form(sample_entity, sample_endpoints, pattern="TR")
+    assert 'treeuseyn="true"' in out
+    assert "parent_id" in out               # default convention via Jinja default filter
+
+
 def test_compose_form_MD_with_child_auto_wires_grid(sample_entity, sample_endpoints):
     """Growth-5: MD with child entity emits child grid, dataset, buttons, and combined save payload."""
     out = compose_form(
