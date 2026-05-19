@@ -18,7 +18,7 @@ CRUD 버튼 없음 → audit 무결성 보장.
 | `btn_search` | dsSearch 기준 조회 |
 | `btn_refresh` | 마지막 검색 조건 재조회 |
 | `grd_main` | `readonly=true` 그리드 |
-| `btn_export` | overlay 단계에서 lane별 exporter 어댑터에 위임 (`fn_export_dataset` 후크) |
+| `btn_export` | Growth-8: lane=nexacro → `this.parent.fn_export_dataset(...)` (Stage 5 가 자동 `Export.xjs` 발행); lane=react → entity 모듈의 `exportToCsv()` 호출 |
 | `lbl_hint` | "조회 전용" 가이드 라벨 |
 
 ## 호출 endpoint
@@ -42,7 +42,16 @@ name: order_status_history
 pattern: RO
 ```
 
+## Stage 5 export 어댑터 (Growth-8 완료)
+
+| lane | 발행물 | 동작 |
+| :-- | :-- | :-- |
+| nexacro | `nxui/packageN/<domain>/Export.xjs` | `fn_export_dataset(ds, name)` → `Dataset.saveCSV(name+'.csv')` (UTF-8 BOM 포함, 네이티브 저장 다이얼로그) |
+| react | 각 `frontend/src/api/<entity>.ts` 에 `exportToCsv(params?, filename?)` | `selectDataListMap()` 결과를 Blob 으로 다운로드 |
+
+nexacro 어댑터는 blueprint 에 **하나라도 RO 엔티티가 있으면** 발행된다. 사용자는 발행된 `Export.xjs` 를 TypeDefinition `<Scripts>` 에 등록하고 parent frame 에서 include 하기만 하면 된다 (one-time wiring). react 어댑터는 lane 차원에서 보편적이므로 모든 entity 모듈에 부여된다.
+
 ## 향후 확장
 
-- Stage 5 overlay 단계에서 `fn_export_dataset` 어댑터를 lane 별 (nexacro=xlsx, react=csv) 로 주입
+- xlsx 출력 지원 (현재는 CSV)
 - date-range 검색 필드 자동 wiring (`*_at` 컬럼이 있는 RO 엔티티 한정)
