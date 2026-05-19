@@ -76,6 +76,24 @@ def main(argv=None):
     service_slug = _pascal_to_snake(service_pascal)
 
     ep_by_name = {x["name"]: x for x in ep["entities"]}
+    ent_by_name = {e["name"]: e for e in bp["entities"]}
+    # Build child lookup: master_name -> (child_entity, child_endpoints, fk_column)
+    # for the first 1:N relation outgoing from each entity (MD picks the first).
+    child_by_master = {}
+    for rel in bp.get("relations") or []:
+        if rel.get("cardinality") != "1:N":
+            continue
+        master = rel.get("from")
+        child_name = rel.get("to")
+        if master in child_by_master:
+            continue
+        child_ent = ent_by_name.get(child_name)
+        child_ep = ep_by_name.get(child_name)
+        if not child_ent or not child_ep:
+            continue
+        fk_col = (rel.get("fk") or {}).get("column")
+        child_by_master[master] = (child_ent, child_ep, fk_col)
+
     written = []
     for entity in bp["entities"]:
         target = form_dir / f"{entity['name']}.xfdl"
@@ -86,12 +104,22 @@ def main(argv=None):
             target.replace(target.with_suffix(target.suffix + ".bak"))
         pattern = entity.get("pattern") or args.default_pattern
         global_root = GLOBAL_PATTERN_ROOT if GLOBAL_PATTERN_ROOT.exists() else None
+        child_kwargs = {}
+        if pattern == "MD":
+            ch = child_by_master.get(entity["name"])
+            if ch:
+                child_kwargs = dict(
+                    child_entity=ch[0],
+                    child_endpoints=ch[1],
+                    child_fk_column=ch[2],
+                )
         xfdl = compose_form(
             entity,
             ep_by_name[entity["name"]],
             pattern=pattern,
             global_pattern_root=global_root,
             service_pascal=service_pascal,
+            **child_kwargs,
         )
         target.write_text(xfdl, encoding="utf-8")
         written.append(target)
