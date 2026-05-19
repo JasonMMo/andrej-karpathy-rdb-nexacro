@@ -1,0 +1,4 @@
+name: L2
+kind: list-detail-2-tier
+description: "좌측 list grid + 우측 detail 편집 패널 (게시판/공지/명단 등 list-heavy 도메인 표준)"
+required_endpoints: [select_datalist_map, save_datalist_map]
