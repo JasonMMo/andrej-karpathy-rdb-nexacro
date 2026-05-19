@@ -1,0 +1,4 @@
+name: TR
+kind: tree-1-tier
+description: "검색 + 트리 Grid + CRUD 버튼 (self-hierarchy entity: 카테고리/계정과목/부서/대댓글 등)"
+required_endpoints: [select_datalist_map, save_datalist_map]
