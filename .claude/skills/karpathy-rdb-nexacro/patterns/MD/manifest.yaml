@@ -1,0 +1,4 @@
+name: MD
+kind: master-detail-2-tier
+description: "상단 master detail + 하단 child grid (주문서/발주서/송장 등 transactional document)"
+required_endpoints: [select_datalist_map, save_datalist_map]
