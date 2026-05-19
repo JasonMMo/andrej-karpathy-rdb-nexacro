@@ -107,6 +107,21 @@ def test_compose_form_TR_default_parent_column_fallback(sample_entity, sample_en
     assert "parent_id" in out               # default convention via Jinja default filter
 
 
+def test_compose_form_RO_is_read_only(sample_entity, sample_endpoints):
+    """Growth-7: RO pattern emits read-only grid + refresh/export, no CRUD buttons."""
+    out = compose_form(sample_entity, sample_endpoints, pattern="RO")
+    assert 'readonly="true"' in out
+    assert "btn_search" in out
+    assert "btn_refresh" in out
+    assert "btn_export" in out
+    # audit/history must NOT expose mutating UI
+    assert "btn_save" not in out
+    assert "btn_add" not in out
+    assert "btn_del" not in out
+    # RO should not touch save endpoint
+    assert "save_datalist_map" not in out
+
+
 def test_compose_form_MD_with_child_auto_wires_grid(sample_entity, sample_endpoints):
     """Growth-5: MD with child entity emits child grid, dataset, buttons, and combined save payload."""
     out = compose_form(
