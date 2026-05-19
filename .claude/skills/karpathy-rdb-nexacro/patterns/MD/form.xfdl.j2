@@ -10,7 +10,8 @@
     <!-- Master area (top, 60..280): single record edit bound to ds{{ entity_pascal }} rowposition -->
     <Static id="ttl_master" left="10" top="60" width="120" height="20" text="마스터" cssclass="sta_WF_Title"/>
     <Grid id="grd_master" left="10" top="90" width="880" height="180"
-          binddataset="ds{{ entity_pascal }}" autofittype="col" useinputpanel="true">
+          binddataset="ds{{ entity_pascal }}" autofittype="col" useinputpanel="true"
+          oncellclick="fn_master_changed">
 {{ grid_format | indent(6) }}
     </Grid>
     <Button id="btn_add"  left="710" top="280" width="80" height="24" text="추가" onclick="fn_add_master"/>
@@ -19,27 +20,29 @@
     <!-- Divider -->
     <Static id="div_h" left="10" top="310" width="880" height="1" cssclass="sta_WF_Divider"/>
 
-    <!-- Child area (bottom, 320..600): line items grid bound to a child dataset -->
-    <!-- NOTE: child dataset(ds{{ entity_pascal }}Items)는 form 사용자가 명시적으로 bind 보강.
-         부모 PK 변경 시 fn_master_changed에서 child를 재조회하는 패턴 권장. -->
+    <!-- Child area (bottom, 320..600): line items grid bound to ds{{ child_entity_pascal|default('Child') }} -->
+    {% if child_entity_pascal %}
+    <Static id="ttl_child" left="10" top="320" width="200" height="20" text="라인 아이템 ({{ child_entity_name }})" cssclass="sta_WF_Title"/>
+    <Grid id="grd_child" left="10" top="346" width="880" height="240"
+          binddataset="ds{{ child_entity_pascal }}" autofittype="col" useinputpanel="true">
+{{ child_grid_format | indent(6) }}
+    </Grid>
+    <Button id="btn_child_add" left="620" top="600" width="80" height="28" text="라인 추가" onclick="fn_add_child"/>
+    <Button id="btn_child_del" left="710" top="600" width="80" height="28" text="라인 삭제" onclick="fn_delete_child"/>
+    {% else %}
     <Static id="ttl_child" left="10" top="320" width="200" height="20" text="라인 아이템" cssclass="sta_WF_Title"/>
     <Static id="hint_child" left="220" top="320" width="670" height="20"
-            text="(child dataset/grid는 form 사용자가 자식 entity에 맞춰 보강 권장 — 부모 PK로 필터)"
+            text="(blueprint relations에 1:N child가 없어 라인 영역은 비어있습니다 — concept 추가 권장)"
             cssclass="sta_WF_Hint"/>
-    <Grid id="grd_child" left="10" top="346" width="880" height="240"
-          binddataset="ds{{ entity_pascal }}Items" autofittype="col" useinputpanel="true">
-      <Format id="default">
-        <Columns><Column size="200"/></Columns>
-        <Rows><Row size="24" band="head"/><Row size="24"/></Rows>
-        <Band id="head"><Cell text="자식 라인 컬럼"/></Band>
-        <Band id="body"><Cell/></Band>
-      </Format>
-    </Grid>
+    {% endif %}
     <Button id="btn_save" left="800" top="600" width="80" height="28" text="저장" onclick="fn_save"/>
   </Layout>
 
   <Objects>
 {{ datasets | indent(4) }}
+{% if child_datasets %}
+{{ child_datasets | indent(4) }}
+{% endif %}
   </Objects>
 
   <Script type="xscript5.1"><![CDATA[
@@ -52,7 +55,18 @@ this.fn_search = function() {
 };
 
 this.fn_master_changed = function(obj, e) {
-  // 부모 행이 바뀌면 자식 dataset 재조회 (사용자 보강 영역)
+{% if child_entity_pascal and child_select_path %}
+  // 부모 행 변경 시 자식 dataset 재조회
+  var r = this.ds{{ entity_pascal }}.rowposition;
+  if (r < 0) return;
+  var pk = this.ds{{ entity_pascal }}.getColumn(r, "id");
+  this.dsSearch.setColumn(0, "{{ child_fk_column|default('parent_id') }}", pk);
+  this.transaction("select_child",
+    "Svc{{ service_pascal }}::{{ child_select_path }}",
+    "dsSearch=dsSearch",
+    "output1=ds{{ child_entity_pascal }}",
+    "", "fn_callback");
+{% endif %}
 };
 
 this.fn_add_master = function() {
@@ -65,17 +79,36 @@ this.fn_delete_master = function() {
   this.ds{{ entity_pascal }}.deleteRow(r);
 };
 
+{% if child_entity_pascal %}
+this.fn_add_child = function() {
+  var r = this.ds{{ entity_pascal }}.rowposition;
+  if (r < 0) { alert("먼저 마스터 행을 선택하세요."); return; }
+  var nr = this.ds{{ child_entity_pascal }}.addRow();
+  var pk = this.ds{{ entity_pascal }}.getColumn(r, "id");
+  this.ds{{ child_entity_pascal }}.setColumn(nr, "{{ child_fk_column|default('parent_id') }}", pk);
+};
+
+this.fn_delete_child = function() {
+  var r = this.ds{{ child_entity_pascal }}.rowposition;
+  if (r < 0) return;
+  this.ds{{ child_entity_pascal }}.deleteRow(r);
+};
+{% endif %}
+
 this.fn_save = function() {
   if (this.ds{{ entity_pascal }}.getRowCountNF() === 0) {
     alert("저장할 마스터가 없습니다.");
     return;
   }
-  // master + child 동시 저장: 사용자는 dataList 파라미터에 자식 dataset도 추가 권장
   this.transaction("save",
     "Svc{{ service_pascal }}::{{ save_path }}",
     "",
     "",
+{% if child_entity_pascal %}
+    "dataList=ds{{ entity_pascal }}:U childList=ds{{ child_entity_pascal }}:U",
+{% else %}
     "dataList=ds{{ entity_pascal }}:U",
+{% endif %}
     "fn_callback");
 };
 
