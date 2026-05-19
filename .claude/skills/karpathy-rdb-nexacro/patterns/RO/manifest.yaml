@@ -1,0 +1,4 @@
+name: RO
+kind: read-only-list-1-tier
+description: "검색 + 읽기 전용 grid + 새로고침/내보내기. audit/history/log/ledger 등 INSERT-only 추적 데이터용 (CRUD 버튼 없음)."
+required_endpoints: [select_datalist_map]
