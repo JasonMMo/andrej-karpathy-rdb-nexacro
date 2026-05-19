@@ -50,6 +50,18 @@ def test_resolve_bundled_TR():
     assert "save_datalist_map" in p.manifest["required_endpoints"]
 
 
+def test_resolve_bundled_RO():
+    """Growth-7: read-only-list-1-tier pattern for audit/history entities."""
+    p = resolve_pattern("RO", bundled_root=BUNDLED, global_root=None)
+    assert p.name == "RO"
+    assert p.template_path.exists()
+    assert p.manifest["name"] == "RO"
+    assert p.manifest["kind"] == "read-only-list-1-tier"
+    assert "select_datalist_map" in p.manifest["required_endpoints"]
+    # RO is intentionally read-only — no save endpoint required
+    assert "save_datalist_map" not in p.manifest["required_endpoints"]
+
+
 def test_unknown_pattern_raises(tmp_path):
     with pytest.raises(PatternNotFoundError) as exc:
         resolve_pattern("ZZ", bundled_root=BUNDLED, global_root=tmp_path)
