@@ -40,7 +40,7 @@ patterns/<name>/
 | `select_path` | select_datalist_map 의 http_path |
 | `save_path` | save_datalist_map 의 http_path |
 
-## 번들 패턴 (v0.5 — Growth-4 MD 추가)
+## 번들 패턴 (v0.5 — Growth-6 TR 추가)
 | 이름 | 종류 | 용도 |
 | :-- | :-- | :-- |
 | **D2** | detail-2-tier | 검색 + grid + CRUD 버튼. 기본값. 다행 CRUD. |
@@ -48,6 +48,7 @@ patterns/<name>/
 | **C1** | card-1-tier | 검색 + 읽기 전용 grid + 선택 버튼. picker / popup. |
 | **L2** | list-detail-2-tier | 좌측 list grid + 우측 detail 편집 패널. 게시판/공지/명단 등 list-heavy 도메인 표준. |
 | **MD** | master-detail-2-tier | 상단 master + 하단 child line-items. 주문서/발주서/송장 등 transactional document. blueprint `relations` 의 첫 번째 1:N 자식이 자동 wiring (Growth-5). 없을 시 placeholder graceful degrade. |
+| **TR** | tree-1-tier | 검색 + 트리 Grid(treeuseyn=true) + 루트/자식 추가/삭제/저장. self-hierarchy entity (department/account/comment/category) 전용. blueprint `relations` 의 첫 번째 `cardinality: self` 의 `fk.column` 이 `self_parent_column` 으로 자동 주입 (Growth-6). 없으면 컨벤션 `parent_id` 로 fallback. |
 
 ## 새 패턴 추가
 1. `patterns/<name>/` 디렉터리 생성 (manifest.yaml + form.xfdl.j2 + README.md)
