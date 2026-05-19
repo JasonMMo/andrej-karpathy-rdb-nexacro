@@ -80,19 +80,28 @@ def main(argv=None):
     # Build child lookup: master_name -> (child_entity, child_endpoints, fk_column)
     # for the first 1:N relation outgoing from each entity (MD picks the first).
     child_by_master = {}
+    # Build self-FK lookup: entity_name -> parent_column
+    # for the first cardinality:self relation (TR pattern).
+    self_parent_by_entity = {}
     for rel in bp.get("relations") or []:
-        if rel.get("cardinality") != "1:N":
-            continue
-        master = rel.get("from")
-        child_name = rel.get("to")
-        if master in child_by_master:
-            continue
-        child_ent = ent_by_name.get(child_name)
-        child_ep = ep_by_name.get(child_name)
-        if not child_ent or not child_ep:
-            continue
-        fk_col = (rel.get("fk") or {}).get("column")
-        child_by_master[master] = (child_ent, child_ep, fk_col)
+        card = rel.get("cardinality")
+        if card == "1:N":
+            master = rel.get("from")
+            child_name = rel.get("to")
+            if master in child_by_master:
+                continue
+            child_ent = ent_by_name.get(child_name)
+            child_ep = ep_by_name.get(child_name)
+            if not child_ent or not child_ep:
+                continue
+            fk_col = (rel.get("fk") or {}).get("column")
+            child_by_master[master] = (child_ent, child_ep, fk_col)
+        elif card == "self":
+            ename = rel.get("from") or rel.get("to")
+            if ename and ename not in self_parent_by_entity:
+                fk_col = (rel.get("fk") or {}).get("column")
+                if fk_col:
+                    self_parent_by_entity[ename] = fk_col
 
     written = []
     for entity in bp["entities"]:
@@ -113,6 +122,10 @@ def main(argv=None):
                     child_endpoints=ch[1],
                     child_fk_column=ch[2],
                 )
+        if pattern == "TR":
+            sp = self_parent_by_entity.get(entity["name"])
+            if sp:
+                child_kwargs["self_parent_column"] = sp
         xfdl = compose_form(
             entity,
             ep_by_name[entity["name"]],
