@@ -1,4 +1,4 @@
-# Form Pattern Catalog (v0.3+)
+# Form Pattern Catalog (v0.4+)
 
 ## 개요
 Stage 4 의 form layout 은 명명된 file-based pattern 디렉터리로 분리되어 있다.
@@ -40,12 +40,13 @@ patterns/<name>/
 | `select_path` | select_datalist_map 의 http_path |
 | `save_path` | save_datalist_map 의 http_path |
 
-## 번들 패턴 (v0.3)
+## 번들 패턴 (v0.4 — Growth-3 L2 추가)
 | 이름 | 종류 | 용도 |
 | :-- | :-- | :-- |
 | **D2** | detail-2-tier | 검색 + grid + CRUD 버튼. 기본값. 다행 CRUD. |
 | **F1** | form-1-tier | 단일 record 편집. grid 없음. 1:1 entity / 디테일 측. |
 | **C1** | card-1-tier | 검색 + 읽기 전용 grid + 선택 버튼. picker / popup. |
+| **L2** | list-detail-2-tier | 좌측 list grid + 우측 detail 편집 패널. 게시판/공지/명단 등 list-heavy 도메인 표준. |
 
 ## 새 패턴 추가
 1. `patterns/<name>/` 디렉터리 생성 (manifest.yaml + form.xfdl.j2 + README.md)
