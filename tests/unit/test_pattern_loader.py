@@ -17,6 +17,17 @@ def test_resolve_bundled_D2():
     assert p.source == "bundled"
 
 
+def test_resolve_bundled_L2():
+    """Growth-3: list-detail-2-tier pattern for list-heavy domains (게시판, 공지...)."""
+    p = resolve_pattern("L2", bundled_root=BUNDLED, global_root=None)
+    assert p.name == "L2"
+    assert p.template_path.exists()
+    assert p.manifest["name"] == "L2"
+    assert p.manifest["kind"] == "list-detail-2-tier"
+    assert "select_datalist_map" in p.manifest["required_endpoints"]
+    assert "save_datalist_map" in p.manifest["required_endpoints"]
+
+
 def test_unknown_pattern_raises(tmp_path):
     with pytest.raises(PatternNotFoundError) as exc:
         resolve_pattern("ZZ", bundled_root=BUNDLED, global_root=tmp_path)
