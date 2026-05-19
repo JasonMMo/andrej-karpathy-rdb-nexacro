@@ -28,6 +28,17 @@ def test_resolve_bundled_L2():
     assert "save_datalist_map" in p.manifest["required_endpoints"]
 
 
+def test_resolve_bundled_MD():
+    """Growth-4: master-detail-2-tier pattern for transactional documents (주문서/발주서/송장)."""
+    p = resolve_pattern("MD", bundled_root=BUNDLED, global_root=None)
+    assert p.name == "MD"
+    assert p.template_path.exists()
+    assert p.manifest["name"] == "MD"
+    assert p.manifest["kind"] == "master-detail-2-tier"
+    assert "select_datalist_map" in p.manifest["required_endpoints"]
+    assert "save_datalist_map" in p.manifest["required_endpoints"]
+
+
 def test_unknown_pattern_raises(tmp_path):
     with pytest.raises(PatternNotFoundError) as exc:
         resolve_pattern("ZZ", bundled_root=BUNDLED, global_root=tmp_path)
