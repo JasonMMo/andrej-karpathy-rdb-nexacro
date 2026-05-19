@@ -19,7 +19,9 @@ transactional document (주문서/발주서/송장/견적서) 표준.
 - 중간(310px): 가로 divider
 - 하단(320~600px): 자식 라인 grid + 저장 버튼
 
-## ⚠️ MVP 한계 (Growth-4)
-- 자식 dataset(`ds<Pascal>Items`)과 자식 grid 컬럼은 **사용자가 자식 entity에 맞춰 보강**해야 함
-- `fn_master_changed`에서 부모 PK로 자식 재조회 로직도 사용자 보강 영역
-- 다음 Growth 사이클에서 compose_form이 자식 entity까지 받도록 확장 예정 (현재는 D2/F1/C1/L2 무영향 유지가 우선)
+## 자동 wiring (Growth-5)
+- `form_gen.py`가 blueprint `relations[]`에서 해당 entity를 `from`으로 하는 **첫 번째 `cardinality: 1:N` 관계**를 자동 탐지
+- 자식 entity의 컬럼/endpoints를 그대로 사용해 `ds<ChildPascal>`, `grd_child`, `fn_add_child` / `fn_delete_child`, save payload(`dataList ... childList ...`)까지 일괄 wiring
+- `fn_master_changed`는 부모 PK(`id` 컬럼)로 자식 dataset을 재조회하며, FK 컬럼은 관계 정의의 `fk.column`을 사용 (없으면 `parent_id` 폴백)
+- D2/F1/C1/L2 패턴은 child kwargs를 받지 않으므로 무영향
+- 1:N 관계가 없거나 자식 endpoints가 없으면 placeholder 영역(`hint_child`)으로 graceful degrade
