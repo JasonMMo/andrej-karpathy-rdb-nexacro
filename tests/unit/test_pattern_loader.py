@@ -39,6 +39,17 @@ def test_resolve_bundled_MD():
     assert "save_datalist_map" in p.manifest["required_endpoints"]
 
 
+def test_resolve_bundled_TR():
+    """Growth-6: tree-1-tier pattern for self-hierarchy entities (department/account/comment)."""
+    p = resolve_pattern("TR", bundled_root=BUNDLED, global_root=None)
+    assert p.name == "TR"
+    assert p.template_path.exists()
+    assert p.manifest["name"] == "TR"
+    assert p.manifest["kind"] == "tree-1-tier"
+    assert "select_datalist_map" in p.manifest["required_endpoints"]
+    assert "save_datalist_map" in p.manifest["required_endpoints"]
+
+
 def test_unknown_pattern_raises(tmp_path):
     with pytest.raises(PatternNotFoundError) as exc:
         resolve_pattern("ZZ", bundled_root=BUNDLED, global_root=tmp_path)
