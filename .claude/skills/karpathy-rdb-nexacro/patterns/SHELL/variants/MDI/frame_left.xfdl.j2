@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form id="frameLeft" classname="frameLeft" left="0" top="0" width="240" height="740" titletext="Menu">
+    <Layouts>
+      <Layout>
+        <Static id="staTitle" taborder="0" left="0" top="0" width="240" height="32" text="{{ menu_title | default('메뉴') }}" cssclass="sta_left_title"/>
+        <Grid id="grdMenu" taborder="1" left="0" top="32" right="0" bottom="0" binddataset="ds_menu" autofittype="col" treeinitstatus="expand,all" treeuseline="true" treeusebutton="true">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="240"/>
+              </Columns>
+              <Rows>
+                <Row size="28"/>
+              </Rows>
+              <Band id="body">
+                <Cell text="bind:label" displaytype="treeitemcontrol" treelevel="bind:level" edittype="tree"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_menu">
+        <ColumnInfo>
+          <Column id="menuId" type="STRING" size="64"/>
+          <Column id="parentId" type="STRING" size="64"/>
+          <Column id="label" type="STRING" size="128"/>
+          <Column id="formUrl" type="STRING" size="256"/>
+          <Column id="level" type="INT" size="4"/>
+        </ColumnInfo>
+        <Rows>
+{%- for item in menu_items | default([]) %}
+          <Row>
+            <Col id="menuId">{{ item.id }}</Col>
+            <Col id="parentId">{{ item.parent_id | default('') }}</Col>
+            <Col id="label">{{ item.label }}</Col>
+            <Col id="formUrl">{{ item.form_url | default('') }}</Col>
+            <Col id="level">{{ item.level | default(0) }}</Col>
+          </Row>
+{%- endfor %}
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Script type="xscript5.1"><![CDATA[
+this.grdMenu_oncellclick = function(obj, e) {
+  var row = e.row;
+  var formUrl = this.ds_menu.getColumn(row, "formUrl");
+  if (!formUrl) return;
+  var menuId = this.ds_menu.getColumn(row, "menuId");
+  var label = this.ds_menu.getColumn(row, "label");
+  var work = nexacro.getApplication().mainframe.frameMain.form.divWork.form;
+  if (work && work.openTab) {
+    work.openTab(menuId, formUrl, label);
+  }
+};
+]]></Script>
+  </Form>
+</FDL>
