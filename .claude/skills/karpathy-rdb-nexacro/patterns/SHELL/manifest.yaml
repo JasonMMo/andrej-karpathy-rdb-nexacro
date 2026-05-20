@@ -20,6 +20,17 @@ outputs:
   - nxui/packageN/frame/*.xfdl
   - nxui/packageN/typedefinition.xml
   - nxui/packageN/packageN.xadl
+build:
+  # Variant-independent build artifacts rendered into project root.
+  # Resolved via the same variant→MDI fallback as auxiliary frames.
+  # `target` may include `{pkg_path}` which the overlay substitutes from
+  # target_pkg_prefix (e.g. com.nexacro.uiadapter → com/nexacro/uiadapter).
+  - source: pom.xml.j2
+    target: pom.xml
+  - source: Application.java.j2
+    target: src/main/java/{pkg_path}/Application.java
+  - source: application.yml.j2
+    target: src/main/resources/application.yml
 version: 1
 migration:
   policy: "blueprint.shell.manifest_version 명시 시 그 버전 강제, 미지정 시 최신"
