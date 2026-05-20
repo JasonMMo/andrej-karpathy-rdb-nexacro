@@ -15,7 +15,13 @@ variants:
     builtin: true
 inputs:
   required: [blueprint.entities, blueprint.shell.menu]
-  optional: [blueprint.shell.login, blueprint.shell.branding, blueprint.shell.frame_overrides]
+  optional:
+    - blueprint.shell.login
+    - blueprint.shell.branding
+    - blueprint.shell.frame_overrides
+    # Growth-21a-2: auth_mode gates the auth_files block (none|session|jwt|oauth2)
+    # Default "none" keeps Growth-16~20 goldens bit-identical.
+    - blueprint.shell.auth_mode
 outputs:
   - nxui/packageN/frame/*.xfdl
   - nxui/packageN/typedefinition.xml
@@ -37,6 +43,48 @@ build:
   # Without this, `mvn package` fails at compile.
   - source: NexacroBase.java.j2
     target: src/main/java/{pkg_path}/{domain_slug}/domain/NexacroBase.java
+# Growth-21a-2: Spring Security 6 + Nexacro DataSet auth bundle.
+# Each entry's `modes` list controls which auth_mode values render this file.
+# auth_mode="none" → nothing emitted (default for backward compatibility).
+# auth_mode="session" → 8-class form-login bundle (BCrypt + UserDetailsService).
+# auth_mode="jwt"     → session bundle + JwtTokenProvider, Success emits Bearer.
+# auth_mode="oauth2"  → jwt bundle + OAuth2 starter wiring (Growth-21a-3).
+# Templates live under variants/<variant>/auth/ and variants/<variant>/config/
+# with the same variant→MDI fallback as build_files.
+auth_files:
+  - source: auth/NexacroAuthenticationToken.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/NexacroAuthenticationToken.java
+    modes: [session, jwt, oauth2]
+  - source: auth/NexacroAuthenticationDetailSource.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/NexacroAuthenticationDetailSource.java
+    modes: [session, jwt, oauth2]
+  - source: auth/NexacroAuthenticationFilter.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/NexacroAuthenticationFilter.java
+    modes: [session, jwt, oauth2]
+  - source: auth/NexacroAuthenticationProvider.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/NexacroAuthenticationProvider.java
+    modes: [session, jwt, oauth2]
+  - source: auth/NexacroAuthenticationEntryPoint.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/NexacroAuthenticationEntryPoint.java
+    modes: [session, jwt, oauth2]
+  - source: auth/NexacroAccessDeniedHandler.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/NexacroAccessDeniedHandler.java
+    modes: [session, jwt, oauth2]
+  - source: auth/NexacroAuthenticationFailureHandler.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/NexacroAuthenticationFailureHandler.java
+    modes: [session, jwt, oauth2]
+  - source: auth/NexacroAuthenticationSuccessHandler.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/NexacroAuthenticationSuccessHandler.java
+    modes: [session, jwt, oauth2]
+  - source: auth/NexacroUserDetailsService.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/NexacroUserDetailsService.java
+    modes: [session, jwt, oauth2]
+  - source: auth/JwtTokenProvider.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/JwtTokenProvider.java
+    modes: [jwt, oauth2]
+  - source: config/SecurityConfig.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/config/SecurityConfig.java
+    modes: [session, jwt, oauth2]
 version: 1
 migration:
   policy: "blueprint.shell.manifest_version 명시 시 그 버전 강제, 미지정 시 최신"
