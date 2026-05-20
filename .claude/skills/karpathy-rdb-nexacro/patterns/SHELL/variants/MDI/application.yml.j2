@@ -1,0 +1,38 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /uiadapter
+
+spring:
+  datasource:
+    url: jdbc:hsqldb:mem:{{ domain_slug }};sql.syntax_mys=true
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    username: sa
+    password: ""
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      separator: "^^"
+      continue-on-error: false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: {{ target_pkg_prefix }}.{{ domain_slug }}.domain
+
+nexacro:
+  file:
+    storage-dir: ./uploads
+
+logging:
+  level:
+    root: INFO
+    {{ target_pkg_prefix }}: DEBUG
+    org.springframework.jdbc: INFO
+    org.mybatis: INFO
