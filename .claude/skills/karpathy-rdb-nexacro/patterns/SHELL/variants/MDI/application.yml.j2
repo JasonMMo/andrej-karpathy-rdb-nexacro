@@ -5,13 +5,16 @@ server:
 
 spring:
   datasource:
-    url: jdbc:hsqldb:mem:{{ domain_slug }};sql.syntax_mys=true
-    driver-class-name: org.hsqldb.jdbc.JDBCDriver
-    username: sa
-    password: ""
+    url: {{ datasource.url }}
+    driver-class-name: {{ datasource.driver_class_name }}
+    username: {{ datasource.username }}
+    password: "{{ datasource.password }}"
   sql:
     init:
-      mode: always
+      # always = run schema.sql on every boot (safe for in-memory HSQLDB);
+      # embedded = Spring default, runs only on embedded DBs (safe for
+      # real Postgres/MySQL — user owns migration with Flyway/Liquibase).
+      mode: {{ datasource.init_mode }}
       schema-locations: classpath:schema.sql
       separator: "^^"
       continue-on-error: true
