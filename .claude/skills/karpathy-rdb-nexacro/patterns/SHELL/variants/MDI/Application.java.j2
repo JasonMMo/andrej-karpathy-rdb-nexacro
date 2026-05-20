@@ -1,0 +1,23 @@
+package {{ target_pkg_prefix }};
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+/**
+ * Spring Boot entry for the standalone nexacro shell scaffolded by
+ * business-fullstack-creater (SHELL pattern, variant={{ shell_variant }},
+ * domain={{ domain_slug }}).
+ *
+ * Component scan defaults to {@code {{ target_pkg_prefix }}}, covering the
+ * domain sub-package emitted by Stage 5 ({{ target_pkg_prefix }}.{{ domain_slug }}.*).
+ * {@link MapperScan} is required because Stage 3 mybatis mapper interfaces
+ * are emitted without {@code @Mapper} annotations.
+ */
+@SpringBootApplication
+@MapperScan("{{ target_pkg_prefix }}.{{ domain_slug }}.mapper")
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
