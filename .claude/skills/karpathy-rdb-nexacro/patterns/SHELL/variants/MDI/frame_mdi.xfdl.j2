@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form id="frameMDI" classname="frameMDI" left="0" top="0" width="1040" height="740" titletext="Workspace">
+    <Layouts>
+      <Layout>
+        <Tab id="tabWork" taborder="0" left="0" top="0" right="0" bottom="0" tabindex="0" multiline="true"/>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_openTabs">
+        <ColumnInfo>
+          <Column id="tabId" type="STRING" size="64"/>
+          <Column id="formUrl" type="STRING" size="256"/>
+          <Column id="title" type="STRING" size="128"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Script type="xscript5.1"><![CDATA[
+this.openTab = function(tabId, formUrl, title) {
+  var idx = this.ds_openTabs.findRow("tabId", tabId);
+  if (idx >= 0) {
+    this.tabWork.set_tabindex(idx);
+    return;
+  }
+  var page = new nexacro.Tabpage(tabId, 0, 0, 0, 0, 0, 0, null, null, null, null, this.tabWork);
+  page.set_text(title);
+  page.url = formUrl;
+  this.tabWork.addChild(tabId, page);
+  page.show();
+  var row = this.ds_openTabs.addRow();
+  this.ds_openTabs.setColumn(row, "tabId", tabId);
+  this.ds_openTabs.setColumn(row, "formUrl", formUrl);
+  this.ds_openTabs.setColumn(row, "title", title);
+  this.tabWork.set_tabindex(row);
+};
+
+this.closeTab = function(tabId) {
+  var idx = this.ds_openTabs.findRow("tabId", tabId);
+  if (idx < 0) return;
+  this.tabWork.removeChild(tabId);
+  this.ds_openTabs.deleteRow(idx);
+};
+]]></Script>
+  </Form>
+</FDL>
