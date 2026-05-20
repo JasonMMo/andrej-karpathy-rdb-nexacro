@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form id="frameMain" classname="frameMain" left="0" top="0" width="1280" height="800" titletext="{{ title | default('Application') }}">
+    <Layouts>
+      <Layout>
+        <FrameSet id="rootFrameSet" left="0" top="0" width="1280" height="800" separatesize="60,*" direction="vertical">
+          <Frame id="topFrame" formurl="frame::frameTop.xfdl" showtitlebar="false" showstatusbar="false"/>
+          <FrameSet id="bodyFrameSet" separatesize="240,*" direction="horizontal">
+            <Frame id="leftFrame" formurl="frame::frameLeft.xfdl" showtitlebar="false" showstatusbar="false"/>
+            <Frame id="workFrame" formurl="frame::{{ work_frame | default('frameMDI') }}.xfdl" showtitlebar="false" showstatusbar="false"/>
+          </FrameSet>
+        </FrameSet>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[
+{% if has_login -%}
+this.form_onload = function(obj, e) {
+  if (!nexacro.getApplication().gv_isLoggedIn) {
+    nexacro.getApplication().mainframe.openLoginFrame();
+  }
+};
+{%- else -%}
+this.form_onload = function(obj, e) {};
+{%- endif %}
+]]></Script>
+  </Form>
+</FDL>
