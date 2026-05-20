@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TypeDefinition version="2.0">
+  <Service>
+    <Services>
+      <Service prefixid="svc" type="module" name="default" url="{{ service_base_url | default('./services/') }}" version=""/>
+{%- for extra in extra_services | default([]) %}
+      <Service prefixid="{{ extra.prefixid }}" type="{{ extra.type | default('module') }}" name="{{ extra.name }}" url="{{ extra.url }}" version="{{ extra.version | default('') }}"/>
+{%- endfor %}
+    </Services>
+  </Service>
+  <Variables>
+    <Variable id="gv_isLoggedIn" type="BOOLEAN">false</Variable>
+    <Variable id="gv_userName" type="STRING"></Variable>
+  </Variables>
+  <Objects/>
+  <Layouts>
+    <Layout name="default"/>
+  </Layouts>
+</TypeDefinition>
