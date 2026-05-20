@@ -20,6 +20,9 @@ import {{ target_pkg_prefix }}.{{ domain_slug }}.auth.NexacroAuthenticationFailu
 import {{ target_pkg_prefix }}.{{ domain_slug }}.auth.NexacroAuthenticationFilter;
 import {{ target_pkg_prefix }}.{{ domain_slug }}.auth.NexacroAuthenticationProvider;
 import {{ target_pkg_prefix }}.{{ domain_slug }}.auth.NexacroAuthenticationSuccessHandler;
+{% if auth_mode == 'oauth2' %}
+import {{ target_pkg_prefix }}.{{ domain_slug }}.auth.OAuth2LoginSuccessHandler;
+{% endif %}
 
 /**
  * Spring Security 6 configuration for the Nexacro DataSet auth flow.
@@ -44,6 +47,10 @@ public class SecurityConfig {
     private NexacroAuthenticationSuccessHandler successHandler;
     @Autowired
     private NexacroAuthenticationFailureHandler failureHandler;
+{% if auth_mode == 'oauth2' %}
+    @Autowired
+    private OAuth2LoginSuccessHandler oauth2SuccessHandler;
+{% endif %}
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -86,8 +93,19 @@ public class SecurityConfig {
             .authorizeHttpRequests(reg -> reg
                 .requestMatchers("/login", "/error", "/actuator/health").permitAll()
                 .requestMatchers("/nxui/**", "/static/**").permitAll()
+{% if auth_mode == 'oauth2' %}
+                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+{% endif %}
                 .anyRequest().authenticated())
             .addFilterBefore(nexacroFilter, UsernamePasswordAuthenticationFilter.class);
+{% if auth_mode == 'oauth2' %}
+
+        // Growth-21a-3: enable OAuth2 client login flow alongside the
+        // Nexacro password filter. Spring serves the authorization request
+        // at /oauth2/authorization/{registrationId} and lands on
+        // /login/oauth2/code/{registrationId} after the IdP callback.
+        http.oauth2Login(o -> o.successHandler(oauth2SuccessHandler));
+{% endif %}
 
         return http.build();
     }
