@@ -1,0 +1,26 @@
+name: SHELL
+pattern: SHELL
+kind: shell
+applies_to: project
+extensible: true
+description: "Project-level nexacro shell (frame composition + menu + typedef) for standalone WAR builds (Growth-16)"
+variants:
+  - id: MDI
+    display: Multi-Document Interface
+    frames: [frame_main, frame_mdi, frame_left, frame_top, frame_login]
+    builtin: true
+  - id: SDI
+    display: Single-Document Interface
+    frames: [frame_main, frame_sdi, frame_left, frame_top, frame_login]
+    builtin: true
+inputs:
+  required: [blueprint.entities, blueprint.shell.menu]
+  optional: [blueprint.shell.login, blueprint.shell.branding, blueprint.shell.frame_overrides]
+outputs:
+  - nxui/packageN/frame/*.xfdl
+  - nxui/packageN/typedefinition.xml
+  - nxui/packageN/packageN.xadl
+version: 1
+migration:
+  policy: "blueprint.shell.manifest_version 명시 시 그 버전 강제, 미지정 시 최신"
+  v1_to_v2_breaking: []
