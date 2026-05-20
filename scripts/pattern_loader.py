@@ -31,6 +31,12 @@ class ResolvedShell:
     # `target_relative_path` may contain `{pkg_path}` for the overlay to
     # substitute from target_pkg_prefix.
     build_files: list = field(default_factory=list)
+    # Growth-21a-2: Spring Security + Nexacro auth bundle, filtered by
+    # auth_mode (none|session|jwt|oauth2). Each tuple is
+    # (template_path, target_relative_path, modes_list). The overlay filters
+    # by the active auth_mode at render time. Empty list when auth_mode="none"
+    # or when the manifest has no auth_files block.
+    auth_files: list = field(default_factory=list)
     source: str = "bundled"  # "bundled" or "global"
 
 
@@ -130,6 +136,17 @@ def resolve_shell(
                 continue
             build_files.append((_resolve_aux(src), tgt))
 
+        # Growth-21a-2: auth_files are resolved eagerly (same variant→MDI
+        # fallback) but mode-filtered later by the overlay using auth_mode.
+        auth_files: list = []
+        for entry in manifest.get("auth_files", []) or []:
+            src = entry.get("source")
+            tgt = entry.get("target")
+            modes = entry.get("modes") or []
+            if not src or not tgt:
+                continue
+            auth_files.append((_resolve_aux(src), tgt, list(modes)))
+
         return ResolvedShell(
             variant=variant,
             manifest=manifest,
@@ -137,6 +154,7 @@ def resolve_shell(
             typedef_template=_resolve_aux("typedefinition.xml.j2"),
             xadl_template=_resolve_aux("packageN.xadl.j2"),
             build_files=build_files,
+            auth_files=auth_files,
             source=label,
         )
 
