@@ -23,14 +23,20 @@ outputs:
 build:
   # Variant-independent build artifacts rendered into project root.
   # Resolved via the same variant→MDI fallback as auxiliary frames.
-  # `target` may include `{pkg_path}` which the overlay substitutes from
-  # target_pkg_prefix (e.g. com.nexacro.uiadapter → com/nexacro/uiadapter).
+  # `target` may include `{pkg_path}` (substituted from target_pkg_prefix,
+  # e.g. com.nexacro.uiadapter → com/nexacro/uiadapter) and `{domain_slug}`
+  # (substituted from the scaffold's domain slug, e.g. shipping).
   - source: pom.xml.j2
     target: pom.xml
   - source: Application.java.j2
     target: src/main/java/{pkg_path}/Application.java
   - source: application.yml.j2
     target: src/main/resources/application.yml
+  # Project-local base POJO required by Stage 3 nexacro-lane entities
+  # (every domain POJO `extends NexacroBase` — same package, no import).
+  # Without this, `mvn package` fails at compile.
+  - source: NexacroBase.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/domain/NexacroBase.java
 version: 1
 migration:
   policy: "blueprint.shell.manifest_version 명시 시 그 버전 강제, 미지정 시 최신"
