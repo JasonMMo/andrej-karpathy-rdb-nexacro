@@ -62,6 +62,35 @@ def test_resolve_bundled_RO():
     assert "save_datalist_map" not in p.manifest["required_endpoints"]
 
 
+def test_resolve_bundled_F1():
+    """Gap 6: form-1-tier pattern for single-record forms."""
+    p = resolve_pattern("F1", bundled_root=BUNDLED, global_root=None)
+    assert p.name == "F1"
+    assert p.template_path.exists()
+    assert p.manifest["name"] == "F1"
+
+
+def test_resolve_bundled_C1():
+    """Gap 6: card-1-tier pattern for lookup-picker style entities."""
+    p = resolve_pattern("C1", bundled_root=BUNDLED, global_root=None)
+    assert p.name == "C1"
+    assert p.template_path.exists()
+    assert p.manifest["name"] == "C1"
+
+
+@pytest.mark.parametrize("pat", ["D2", "F1", "C1", "L2", "MD", "TR", "RO"])
+def test_all_seven_bundled_patterns_resolve(pat):
+    """Gap 6 freeze: every shipped pattern must be loadable via the generic resolver.
+
+    Catches regressions where a manifest or template gets deleted/renamed and
+    blueprint entities declaring that pattern silently fall back to D2.
+    """
+    p = resolve_pattern(pat, bundled_root=BUNDLED, global_root=None)
+    assert p.source == "bundled"
+    assert p.template_path.exists()
+    assert p.manifest.get("name") == pat
+
+
 def test_unknown_pattern_raises(tmp_path):
     with pytest.raises(PatternNotFoundError) as exc:
         resolve_pattern("ZZ", bundled_root=BUNDLED, global_root=tmp_path)
