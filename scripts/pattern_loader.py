@@ -71,16 +71,41 @@ def resolve_pattern(
 _SHELL_BASE_VARIANT = "MDI"  # shared-frame fallback base
 
 
+def _rewrite_auth_source(source: str, auth_lane: str) -> str:
+    """Growth-23: Rewrite auth/config source paths for non-jakarta lanes.
+
+    auth_lane="jakarta" → no change (legacy auth/ and config/ stay default).
+    auth_lane="javax"   → auth/X.j2 → auth-javax/X.j2, config/X.j2 → config-javax/X.j2.
+
+    The leading directory must be exactly "auth/" or "config/" — anything
+    else is returned unchanged so non-Java assets (xfdl, xml, yml) are
+    unaffected.
+    """
+    if auth_lane == "jakarta":
+        return source
+    for prefix in ("auth/", "config/"):
+        if source.startswith(prefix):
+            return f"{prefix.rstrip('/')}-{auth_lane}/" + source[len(prefix):]
+    return source
+
+
 def resolve_shell(
     variant: str,
     bundled_root: pathlib.Path | str,
     global_root: pathlib.Path | str | None = None,
     frame_overrides: dict | None = None,
+    auth_lane: str = "jakarta",
 ) -> ResolvedShell:
     """Resolve a SHELL pattern variant into concrete frame template paths.
 
     Lookup order per file: frame_overrides > variants/<variant>/ > variants/MDI/
     (shared-frame fallback). Source priority: bundled then global root.
+
+    Growth-23: auth_lane selects the auth bundle's servlet/Spring-Security
+    flavor. "jakarta" (default) reads from variants/<variant>/auth/ and
+    config/ as before. "javax" reads from auth-javax/ and config-javax/
+    (Spring Security 5 + javax.servlet, no fallback to jakarta — missing
+    files raise ShellNotFoundError).
     """
     frame_overrides = frame_overrides or {}
 
@@ -138,6 +163,8 @@ def resolve_shell(
 
         # Growth-21a-2: auth_files are resolved eagerly (same variant→MDI
         # fallback) but mode-filtered later by the overlay using auth_mode.
+        # Growth-23: source path is rewritten by auth_lane (jakarta default,
+        # javax → auth-javax/, config-javax/). No silent fallback to jakarta.
         auth_files: list = []
         for entry in manifest.get("auth_files", []) or []:
             src = entry.get("source")
@@ -145,7 +172,8 @@ def resolve_shell(
             modes = entry.get("modes") or []
             if not src or not tgt:
                 continue
-            auth_files.append((_resolve_aux(src), tgt, list(modes)))
+            src_resolved = _rewrite_auth_source(src, auth_lane)
+            auth_files.append((_resolve_aux(src_resolved), tgt, list(modes)))
 
         return ResolvedShell(
             variant=variant,
