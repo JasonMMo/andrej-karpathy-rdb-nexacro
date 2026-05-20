@@ -23,6 +23,27 @@ spring:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
+{% if auth_mode == 'oauth2' %}
+  security:
+    oauth2:
+      client:
+        # Growth-21a-3 OAuth2 client placeholders. Replace client-id/secret
+        # at deploy time via env vars (SPRING_SECURITY_OAUTH2_CLIENT_*).
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:change-me}
+            client-secret: ${GOOGLE_CLIENT_SECRET:change-me}
+            scope: openid,profile,email
+          keycloak:
+            client-id: ${KEYCLOAK_CLIENT_ID:nexacro-shell}
+            client-secret: ${KEYCLOAK_CLIENT_SECRET:change-me}
+            authorization-grant-type: authorization_code
+            scope: openid,profile,email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8081/realms/nexacro}
+{% endif %}
 
 mybatis:
   mapper-locations: classpath:mybatis/mapper/**/*.xml
@@ -31,6 +52,17 @@ mybatis:
 nexacro:
   file:
     storage-dir: ./uploads
+{% if auth_mode in ['jwt', 'oauth2'] %}
+
+# Growth-21a-3 JWT access-token config. Override the secret in any non-dev
+# environment via APP_SECURITY_JWT_SECRET (must be ≥ 32 bytes).
+app:
+  security:
+    jwt:
+      secret: ${APP_SECURITY_JWT_SECRET:change-me-please-please-change-me-32b}
+      ttl-seconds: ${APP_SECURITY_JWT_TTL_SECONDS:1800}
+      issuer: ${APP_SECURITY_JWT_ISSUER:{{ domain_slug }}-shell}
+{% endif %}
 
 logging:
   level:
