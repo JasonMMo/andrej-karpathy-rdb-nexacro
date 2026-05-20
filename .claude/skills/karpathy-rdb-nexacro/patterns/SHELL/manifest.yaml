@@ -82,6 +82,12 @@ auth_files:
   - source: auth/JwtTokenProvider.java.j2
     target: src/main/java/{pkg_path}/{domain_slug}/auth/JwtTokenProvider.java
     modes: [jwt, oauth2]
+  # Growth-21a-3: OAuth2 federation success handler (oauth2-only).
+  # Links the federated identity to the local app_user via oauth_account
+  # and issues a JWT using JwtTokenProvider.
+  - source: auth/OAuth2LoginSuccessHandler.java.j2
+    target: src/main/java/{pkg_path}/{domain_slug}/auth/OAuth2LoginSuccessHandler.java
+    modes: [oauth2]
   - source: config/SecurityConfig.java.j2
     target: src/main/java/{pkg_path}/{domain_slug}/config/SecurityConfig.java
     modes: [session, jwt, oauth2]
