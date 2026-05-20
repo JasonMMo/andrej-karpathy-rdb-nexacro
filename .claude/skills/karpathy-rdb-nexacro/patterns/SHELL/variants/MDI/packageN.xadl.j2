@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ADL version="2.0">
+  <Application id="{{ app_id | default('packageN') }}" version="1.0" screenid="" typedefinition="typedefinition.xml">
+    <Layouts>
+      <Layout>
+        <MainFrame id="mainframe" left="0" top="0" width="1280" height="800" titletext="{{ title | default('Application') }}">
+          <ChildFrame id="frameMain" formurl="frame::frameMain.xfdl" left="0" top="0" width="1280" height="800" showtitlebar="false" showstatusbar="false"/>
+{%- if has_login %}
+          <ChildFrame id="frameLogin" formurl="frame::frameLogin.xfdl" left="440" top="260" width="400" height="280" showtitlebar="true" showstatusbar="false" openalign="center middle" visible="false"/>
+{%- endif %}
+        </MainFrame>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[
+{% if has_login -%}
+this.openLoginFrame = function() {
+  this.mainframe.frameLogin.set_visible(true);
+};
+this.closeLoginFrame = function() {
+  this.mainframe.frameLogin.set_visible(false);
+};
+{%- endif %}
+]]></Script>
+  </Application>
+</ADL>
