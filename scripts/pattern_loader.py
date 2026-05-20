@@ -26,6 +26,11 @@ class ResolvedShell:
     frames: dict = field(default_factory=dict)  # frame_name -> pathlib.Path
     typedef_template: pathlib.Path = None
     xadl_template: pathlib.Path = None
+    # Variant-independent project build artifacts (pom.xml, Application.java,
+    # application.yml). Each tuple is (template_path, target_relative_path).
+    # `target_relative_path` may contain `{pkg_path}` for the overlay to
+    # substitute from target_pkg_prefix.
+    build_files: list = field(default_factory=list)
     source: str = "bundled"  # "bundled" or "global"
 
 
@@ -117,12 +122,21 @@ def resolve_shell(
                 f"'{variant}' (looked in {variant_dir} and {base_dir})"
             )
 
+        build_files: list = []
+        for entry in manifest.get("build", []) or []:
+            src = entry.get("source")
+            tgt = entry.get("target")
+            if not src or not tgt:
+                continue
+            build_files.append((_resolve_aux(src), tgt))
+
         return ResolvedShell(
             variant=variant,
             manifest=manifest,
             frames=frames,
             typedef_template=_resolve_aux("typedefinition.xml.j2"),
             xadl_template=_resolve_aux("packageN.xadl.j2"),
+            build_files=build_files,
             source=label,
         )
 
