@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form id="frameSDI" classname="frameSDI" left="0" top="0" width="1040" height="740" titletext="Workspace">
+    <Layouts>
+      <Layout>
+        <Div id="divWork" taborder="0" left="0" top="0" right="0" bottom="0" formscrolltype="none"/>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_current">
+        <ColumnInfo>
+          <Column id="formUrl" type="STRING" size="256"/>
+          <Column id="title" type="STRING" size="128"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="formUrl"/><Col id="title"/></Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Script type="xscript5.1"><![CDATA[
+this.openTab = function(tabId, formUrl, title) {
+  this.divWork.set_url(formUrl);
+  this.ds_current.setColumn(0, "formUrl", formUrl);
+  this.ds_current.setColumn(0, "title", title);
+};
+
+this.closeTab = function(tabId) {
+  this.divWork.set_url("");
+  this.ds_current.setColumn(0, "formUrl", "");
+  this.ds_current.setColumn(0, "title", "");
+};
+]]></Script>
+  </Form>
+</FDL>
