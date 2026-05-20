@@ -13,9 +13,8 @@ spring:
     init:
       mode: always
       schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
       separator: "^^"
-      continue-on-error: false
+      continue-on-error: true
   servlet:
     multipart:
       enabled: true
@@ -23,7 +22,7 @@ spring:
       max-request-size: 10MB
 
 mybatis:
-  mapper-locations: classpath:mapper/**/*.xml
+  mapper-locations: classpath:mybatis/mapper/**/*.xml
   type-aliases-package: {{ target_pkg_prefix }}.{{ domain_slug }}.domain
 
 nexacro:
