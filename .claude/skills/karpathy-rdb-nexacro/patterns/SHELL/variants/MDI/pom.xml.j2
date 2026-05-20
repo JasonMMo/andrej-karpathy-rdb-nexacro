@@ -36,6 +36,9 @@
         <lombok.version>1.18.34</lombok.version>
         <jackson.version>2.17.2</jackson.version>
         <commons.io.version>2.16.1</commons.io.version>
+{% if auth_mode in ['jwt', 'oauth2'] %}
+        <jjwt.version>0.11.5</jjwt.version>
+{% endif %}
 
         <!-- nexacro first-party (jakarta lane) -->
         <nexacro.xapi.jakarta.version>1.2.4-SNAPSHOT</nexacro.xapi.jakarta.version>
@@ -163,6 +166,43 @@
             <artifactId>uiadapter-jakarta-excel</artifactId>
             <version>${nexacro.uiadapter.jakarta.excel.version}</version>
         </dependency>
+{% if auth_mode in ['session', 'jwt', 'oauth2'] %}
+
+        <!--
+            Growth-21a-3: Spring Security 6 (auth_mode={{ auth_mode }}).
+            All three modes share spring-boot-starter-security; jwt/oauth2
+            also pull jjwt; oauth2 adds the OAuth2 client starter.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+{% endif %}
+{% if auth_mode in ['jwt', 'oauth2'] %}
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+{% endif %}
+{% if auth_mode == 'oauth2' %}
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+{% endif %}
     </dependencies>
 
     <build>
