@@ -1,0 +1,4 @@
+name: TG
+kind: tree-grid-2-pane
+description: "좌측 카테고리/트리 Grid + 우측 데이터 Grid (좌측 선택이 우측 조회 조건). MD는 1:N 같은 화면 내 수직 분할, TG는 카테고리 navigation 수평 분할"
+required_endpoints: [select_datalist_map, save_datalist_map]
