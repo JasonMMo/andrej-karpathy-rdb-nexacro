@@ -91,6 +91,32 @@ def test_all_seven_bundled_patterns_resolve(pat):
     assert p.manifest.get("name") == pat
 
 
+@pytest.mark.parametrize("pat,kind", [
+    ("MT",  "multi-tab-N-tier"),
+    ("TG",  "tree-grid-2-pane"),
+    ("PS",  "popup-search-1-tier"),
+    ("MDS", "multi-dataset-save-header-lines"),
+])
+def test_growth41_complex_patterns_resolve(pat, kind):
+    """Growth-41: 4 complex screen patterns mirrored from nexacro-claude-skills.
+
+    Each shipped pattern must be resolvable via the generic loader and declare
+    the documented kind. Catches regressions where a manifest gets renamed and
+    blueprint entities declaring the pattern silently fall back to D2.
+    """
+    p = resolve_pattern(pat, bundled_root=BUNDLED, global_root=None)
+    assert p.source == "bundled"
+    assert p.template_path.exists()
+    assert p.manifest.get("name") == pat
+    assert p.manifest.get("kind") == kind
+    assert "select_datalist_map" in p.manifest["required_endpoints"]
+    # MDS, MT, TG all save; PS is read-only lookup
+    if pat == "PS":
+        assert "save_datalist_map" not in p.manifest["required_endpoints"]
+    else:
+        assert "save_datalist_map" in p.manifest["required_endpoints"]
+
+
 def test_unknown_pattern_raises(tmp_path):
     with pytest.raises(PatternNotFoundError) as exc:
         resolve_pattern("ZZ", bundled_root=BUNDLED, global_root=tmp_path)
