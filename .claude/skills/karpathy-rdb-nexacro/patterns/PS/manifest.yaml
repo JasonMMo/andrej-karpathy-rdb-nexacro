@@ -1,0 +1,4 @@
+name: PS
+kind: popup-search-1-tier
+description: "팝업 형태 lookup 화면 — opener 부모폼에 선택 row 반환. 코드 마스터/거래처/사원 검색 등 popup classname"
+required_endpoints: [select_datalist_map]
