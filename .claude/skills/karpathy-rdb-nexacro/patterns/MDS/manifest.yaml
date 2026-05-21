@@ -1,0 +1,4 @@
+name: MDS
+kind: multi-dataset-save-header-lines
+description: "Header(단일 row Form 바인딩) + Lines(Grid) 를 한 트랜잭션으로 동시 저장. 주문/발주/송장 등 정형 문서 작성/수정"
+required_endpoints: [select_datalist_map, save_datalist_map]
