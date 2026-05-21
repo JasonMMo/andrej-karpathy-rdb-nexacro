@@ -1,0 +1,13 @@
+{# Header form-binding (BindItem-backed) — used by MDS pattern.
+   Renders Static + input bound to ds{Master}.{col} row 0 (current). #}
+<Static id="stt_h_{{ col_name }}" text="{{ label }}" left="{{ x }}" top="{{ y }}" width="100" height="22"/>
+{%- if comp == "Calendar" %}
+<Calendar id="cal_h_{{ col_name }}" left="{{ x + 104 }}" top="{{ y }}" width="140" height="22"/>
+<Bind id="bnd_h_{{ col_name }}" compid="cal_h_{{ col_name }}" propid="value" datasetid="ds{{ entity_pascal }}" columnid="{{ col_name }}"/>
+{%- elif comp == "Combo" %}
+<Combo id="cmb_h_{{ col_name }}" left="{{ x + 104 }}" top="{{ y }}" width="140" height="22"/>
+<Bind id="bnd_h_{{ col_name }}" compid="cmb_h_{{ col_name }}" propid="value" datasetid="ds{{ entity_pascal }}" columnid="{{ col_name }}"/>
+{%- else %}
+<Edit id="edt_h_{{ col_name }}" left="{{ x + 104 }}" top="{{ y }}" width="180" height="22"/>
+<Bind id="bnd_h_{{ col_name }}" compid="edt_h_{{ col_name }}" propid="value" datasetid="ds{{ entity_pascal }}" columnid="{{ col_name }}"/>
+{%- endif %}
