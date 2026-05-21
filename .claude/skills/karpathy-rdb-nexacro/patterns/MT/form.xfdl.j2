@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+<Form id="{{ form_id }}" width="900" height="640" titletext="{{ title }}">
+  <Layout>
+    <!-- Search panel (shared across tabs) -->
+    <Static id="ttl_search" left="10" top="6" width="120" height="20" text="검색조건" cssclass="sta_WF_Title"/>
+    {{ search_fields | indent(4) }}
+    <Button id="btn_search" left="310" top="20" width="80" height="24" text="조회" onclick="fn_search"/>
+
+    <!-- Tab control: 3 tabs (기본정보 / 관련내역 / 변경이력) -->
+    <Tab id="tabMain" left="10" top="60" width="880" height="540" tabindex="0" onchanged="fn_tab_changed">
+      <Tabpage id="tab_basic" text="기본정보">
+        <Layouts><Layout>
+          <Grid id="grd_basic" left="0" top="0" right="0" bottom="40"
+                binddataset="ds{{ entity_pascal }}" autofittype="col" useinputpanel="true">
+{{ grid_format | indent(12) }}
+          </Grid>
+          <Button id="btn_add"  right="180" bottom="5" width="80" height="28" text="추가" onclick="fn_add_basic"/>
+          <Button id="btn_del"  right="90"  bottom="5" width="80" height="28" text="삭제" onclick="fn_delete_basic"/>
+          <Button id="btn_save" right="0"   bottom="5" width="80" height="28" text="저장" onclick="fn_save"/>
+        </Layout></Layouts>
+      </Tabpage>
+      <Tabpage id="tab_related" text="관련내역">
+        <Layouts><Layout>
+          {% if child_entity_pascal %}
+          <Grid id="grd_related" left="0" top="0" right="0" bottom="0"
+                binddataset="ds{{ child_entity_pascal }}" autofittype="col" readonly="true">
+{{ child_grid_format | indent(12) }}
+          </Grid>
+          {% else %}
+          <Static id="hint_related" left="0" top="0" right="0" bottom="0"
+                  text="관련 1:N child 미지정 — blueprint relations에 cardinality:1:N 추가 시 자동 wiring"
+                  cssclass="sta_WF_Hint"/>
+          {% endif %}
+        </Layout></Layouts>
+      </Tabpage>
+      <Tabpage id="tab_history" text="변경이력">
+        <Layouts><Layout>
+          <Grid id="grd_history" left="0" top="0" right="0" bottom="0"
+                binddataset="dsHistory" autofittype="col" readonly="true">
+            <Formats>
+              <Format id="default">
+                <Columns>
+                  <Column size="120"/><Column size="120"/><Column size="120"/><Column size="200"/>
+                </Columns>
+                <Rows><Row size="28"/><Row size="28"/></Rows>
+                <Band id="head">
+                  <Cell col="0" text="시각"/><Cell col="1" text="작업자"/><Cell col="2" text="액션"/><Cell col="3" text="변경내용"/>
+                </Band>
+                <Band id="body">
+                  <Cell col="0" text="bind:event_time"/><Cell col="1" text="bind:actor"/>
+                  <Cell col="2" text="bind:action"/><Cell col="3" text="bind:detail"/>
+                </Band>
+              </Format>
+            </Formats>
+          </Grid>
+        </Layout></Layouts>
+      </Tabpage>
+    </Tab>
+  </Layout>
+
+  <Objects>
+{{ datasets | indent(4) }}
+{% if child_datasets %}
+{{ child_datasets | indent(4) }}
+{% endif %}
+    <Dataset id="dsHistory">
+      <ColumnInfo>
+        <Column id="event_time" type="STRING" size="32"/>
+        <Column id="actor"      type="STRING" size="64"/>
+        <Column id="action"     type="STRING" size="16"/>
+        <Column id="detail"     type="STRING" size="500"/>
+      </ColumnInfo>
+    </Dataset>
+  </Objects>
+
+  <Script type="xscript5.1"><![CDATA[
+this.fn_search = function() {
+  // Clear all tab datasets then reload current tab only (lazy loading reset)
+  this.ds{{ entity_pascal }}.clearData();
+{% if child_entity_pascal %}
+  this.ds{{ child_entity_pascal }}.clearData();
+{% endif %}
+  this.dsHistory.clearData();
+  this.fn_load_current_tab();
+};
+
+this.fn_load_current_tab = function() {
+  var idx = this.tabMain.tabindex;
+  if (idx === 0) {
+    this.transaction("select_basic",
+      "Svc{{ service_pascal }}::{{ select_path }}",
+      "dsSearch=dsSearch",
+      "output1=ds{{ entity_pascal }}",
+      "", "fn_callback");
+{% if child_entity_pascal and child_select_path %}
+  } else if (idx === 1) {
+    // 부모 PK 가 결정된 행이 있을 때만 child 조회
+    var r = this.ds{{ entity_pascal }}.rowposition;
+    if (r >= 0) {
+      var pk = this.ds{{ entity_pascal }}.getColumn(r, "id");
+      this.dsSearch.setColumn(0, "{{ child_fk_column|default('parent_id') }}", pk);
+      this.transaction("select_related",
+        "Svc{{ service_pascal }}::{{ child_select_path }}",
+        "dsSearch=dsSearch",
+        "output1=ds{{ child_entity_pascal }}",
+        "", "fn_callback");
+    }
+{% endif %}
+  } else if (idx === 2) {
+    // History tab: placeholder (도메인 별 audit endpoint는 후속 wiring 대상)
+  }
+};
+
+this.fn_tab_changed = function(obj, e) {
+  // Lazy loading: 탭 첫 진입(rowcount==0) 시에만 조회
+  var idx = e.postindex;
+  if (idx === 0 && this.ds{{ entity_pascal }}.getRowCount() === 0) this.fn_load_current_tab();
+{% if child_entity_pascal %}
+  if (idx === 1 && this.ds{{ child_entity_pascal }}.getRowCount() === 0) this.fn_load_current_tab();
+{% endif %}
+  if (idx === 2 && this.dsHistory.getRowCount() === 0) this.fn_load_current_tab();
+};
+
+this.fn_add_basic = function() { this.ds{{ entity_pascal }}.addRow(); };
+this.fn_delete_basic = function() {
+  var r = this.ds{{ entity_pascal }}.rowposition;
+  if (r < 0) return;
+  this.ds{{ entity_pascal }}.deleteRow(r);
+};
+
+this.fn_save = function() {
+  if (this.ds{{ entity_pascal }}.getRowCountNF() === 0) { alert("저장할 행이 없습니다."); return; }
+  this.transaction("save",
+    "Svc{{ service_pascal }}::{{ save_path }}",
+    "",
+    "",
+    "dataList=ds{{ entity_pascal }}:U",
+    "fn_callback");
+};
+
+this.fn_callback = function(svcId, errCd, errMsg) {
+  if (errCd < 0) { alert(errMsg); return; }
+  if (svcId === "save") this.fn_search();
+};
+  ]]></Script>
+</Form>
+</FDL>

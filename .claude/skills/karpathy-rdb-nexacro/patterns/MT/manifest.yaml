@@ -1,0 +1,4 @@
+name: MT
+kind: multi-tab-N-tier
+description: "동일 entity에 대해 탭별 다른 view (기본정보/관련내역/변경이력) + Lazy Loading. dsMain(탭0) + dsRelated(탭1, child 1:N 자동 wiring) + dsHistory(탭2, audit/log)"
+required_endpoints: [select_datalist_map, save_datalist_map]
