@@ -107,6 +107,24 @@ def compose_form(entity, endpoints, pattern: str = "D2", global_pattern_root=Non
         save_path=sav_path,
     )
 
+    if pattern == "MDS":
+        hf_tpl = ENV.get_template("header_field.xml.j2")
+        header_pieces = []
+        hx, hy = 10, 300
+        for c in cols:
+            header_pieces.append(hf_tpl.render(
+                comp=c["search_component"] or "Edit",
+                col_name=c["name"],
+                label=c["label"],
+                entity_pascal=pascal,
+                x=hx, y=hy,
+            ))
+            hx += 320
+            if hx > 700:
+                hx = 10
+                hy += 32
+        ctx["header_fields"] = "\n".join(header_pieces)
+
     # Optional self-FK column (used by TR pattern; ignored by other patterns)
     if self_parent_column is not None:
         ctx["self_parent_column"] = self_parent_column
