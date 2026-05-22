@@ -35,3 +35,13 @@ See `references/overlay-policy.md`.
 ```
 python scripts/form_gen.py compile --blueprint <bp> --endpoints <ep> --out <dir>
 ```
+
+## Ownership & Self-Check (Phase A — 2026-05-22)
+
+이 skill 은 **business-fullstack-creater 5축 책임표의 `nexacro (Stage 4+5)` 축**을 담당. 활동 뷰는 `business-fullstack-creater/learn-log.md` §0.
+
+- **깊이 누적 위치**: `patterns/` (D2/F1/C1/L2/MD/MDS/MT/PS/RO/TG/TR 11개) + UI overlay (nexacro/react)
+- **단위 테스트**: `tests/` (pytest)
+- **누적 트랩 (0)**: 없음 (frontend 패턴 레이어)
+- **미해결 환류**: 없음
+- **Self-check (Growth 종료 시)**: 새 frontend pattern 또는 overlay 변종이 발생했다면 `business-fullstack-creater/learn-log.md` §0 nexacro 행 + §3 (패턴) 한 줄 환류했는가?
